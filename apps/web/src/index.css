@@ -1,8 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap");
 @import "tailwindcss";
 @import "@smsk/ui/tokens.css";
 @import "@smsk/ui/theme.css";
 @import "@fullcalendar/react/skeleton.css";
-@import url("https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap");
 
-html { font-family: var(--font-sans); }
-body { @apply bg-bg text-fg; }
+html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; }
+/* 大字模式（長者）：所有 rem 尺寸連動，含日曆格線 */
+html.big-text { font-size: 112.5%; }
+body { @apply bg-bg text-fg text-base leading-normal; }
+/* 減少動態：關掉 transition，尊重系統設定 */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+/* 焦點環一律可見（鍵盤操作） */
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* 讓 FullCalendar 事件裡的字跟 root 連動 */
+.fc-event, .fc-timegrid-slot-label { font-size: inherit; }

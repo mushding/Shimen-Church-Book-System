@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import type { BookingInput, Category, Conflict, Room } from "@smsk/shared";
-import { Button, Chip, Field, Input, cssColor, cx } from "../ui";
+import { Button, Chip, Field, Icon, Input, cssColor, cx } from "../ui";
 import { RepeatEditor } from "./RepeatEditor";
 import { describe, fromRRule, toRRule, type Repeat } from "../lib/recur";
-import { dateInput, fmtShort, fromInputs, timeInput } from "../lib/time";
+import { addMinutes, dateInput, fmtDate, fmtShort, fmtTime, fromInputs, timeInput } from "../lib/time";
 
 export type FormValue = { title: string; note: string; roomId: number | null; categoryId: number | null; date: string; startTime: string; endTime: string; repeat: Repeat };
 
@@ -12,13 +12,15 @@ export function initialForm(o: { start: Date; end: Date; roomId?: number | null;
 }
 
 export function toInput(v: FormValue, force: boolean): BookingInput | string {
-  if (!v.title.trim()) return "請填登記目的";
-  if (!v.roomId) return "請選場地";
-  if (!v.categoryId) return "請選類別";
+  if (!v.title.trim()) return "請填寫活動名稱";
+  if (!v.roomId) return "請選一個場地";
+  if (!v.categoryId) return "請選一個類別";
   const start = fromInputs(v.date, v.startTime), end = fromInputs(v.date, v.endTime);
-  if (!(end > start)) return "結束時間要晚於開始";
+  if (!(end > start)) return "結束時間要比開始時間晚";
   return { title: v.title.trim(), note: v.note, roomId: v.roomId, categoryId: v.categoryId, start: start.toISOString(), end: end.toISOString(), rrule: toRRule(v.repeat, start), force };
 }
+
+const DURATIONS = [{ m: 60, label: "1 小時" }, { m: 90, label: "1.5 小時" }, { m: 120, label: "2 小時" }, { m: 180, label: "3 小時" }];
 
 export function BookingForm({ value, onChange, rooms, categories, conflicts, canForce, force, onForce, allowRepeat = true, submitLabel, onSubmit, onCancel, busy, error }: {
   value: FormValue; onChange: (v: FormValue) => void; rooms: Room[]; categories: Category[];
@@ -27,62 +29,79 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
 }) {
   const [repeatOpen, setRepeatOpen] = useState(false);
   const dtstart = useMemo(() => fromInputs(value.date, value.startTime), [value.date, value.startTime]);
+  const dtend = useMemo(() => fromInputs(value.date, value.endTime), [value.date, value.endTime]);
+  const durationMin = Math.round((dtend.getTime() - dtstart.getTime()) / 60_000);
   const set = <K extends keyof FormValue>(k: K, x: FormValue[K]) => onChange({ ...value, [k]: x });
+  const setDuration = (m: number) => onChange({ ...value, endTime: timeInput(addMinutes(dtstart, m)) });
   const roomName = (id: number) => rooms.find((r) => r.id === id)?.name ?? "";
   if (repeatOpen)
     return <RepeatEditor value={value.repeat} dtstart={dtstart} onBack={() => setRepeatOpen(false)} onApply={(r) => { set("repeat", r); setRepeatOpen(false); }} />;
   const conflictRoom = conflicts?.length ? conflicts[0].roomId : null;
+  const timeBad = durationMin <= 0;
+  const durationText = timeBad ? "" : durationMin % 60 === 0 ? `${durationMin / 60} 小時` : durationMin > 60 ? `${Math.floor(durationMin / 60)} 小時 ${durationMin % 60} 分` : `${durationMin} 分鐘`;
   return (
-    <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
+    <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); onSubmit(); }} noValidate>
       {conflicts && conflicts.length > 0 && (
-        <div className="rounded-md border-2 border-danger bg-surface px-3.5 py-3 text-[13px] leading-relaxed">
-          <b className="text-danger">{roomName(conflicts[0].roomId)} 已有登記</b>
-          {conflicts.slice(0, 4).map((c, i) => <div key={i}>{c.title} · {fmtShort(new Date(c.start))}–{new Date(c.end).toTimeString().slice(0, 5)}</div>)}
-          {conflicts.length > 4 && <div className="text-muted">…還有 {conflicts.length - 4} 筆</div>}
-          <div className="text-muted">請改時間或場地。</div>
+        <div role="alert" className="flex gap-3 rounded-md border-2 border-danger bg-surface px-4 py-3 text-base leading-relaxed">
+          <Icon name="alert" size={24} className="mt-0.5 shrink-0 text-danger" />
+          <div>
+            <b className="text-danger">這個時段「{roomName(conflicts[0].roomId)}」已經有人登記了</b>
+            {conflicts.slice(0, 4).map((c, i) => <div key={i} className="text-sm">・{c.title}：{fmtShort(new Date(c.start))}–{fmtTime(new Date(c.end))}</div>)}
+            {conflicts.length > 4 && <div className="text-sm text-muted">…還有 {conflicts.length - 4} 筆</div>}
+            <div className="mt-1 text-sm text-muted">請改一下時間，或換一個場地。</div>
+          </div>
         </div>
       )}
-      <Field label="登記目的"><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練" /></Field>
+      <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練、姊妹會" /></Field>
       <div className="flex flex-col gap-1.5">
-        <span className="text-[13px] font-bold text-primary">場地</span>
-        <div className="flex flex-wrap gap-1.5">
+        <span className="text-base font-bold text-primary">場地<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
+        <div role="radiogroup" aria-label="場地" className="flex flex-wrap gap-2">
           {rooms.filter((r) => r.active || r.id === value.roomId).map((r) => (
-            <Chip key={r.id} on={value.roomId === r.id} color={cssColor(r.colorToken)} onClick={() => set("roomId", r.id)}
-              className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}{value.roomId === r.id ? " ✓" : ""}</Chip>
+            <Chip key={r.id} check on={value.roomId === r.id} color={cssColor(r.colorToken)} onClick={() => set("roomId", r.id)}
+              className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}</Chip>
           ))}
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-[13px] font-bold text-primary">類別</span>
-        <div className="flex flex-wrap gap-1.5">
+        <span className="text-base font-bold text-primary">類別<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
+        <div role="radiogroup" aria-label="類別" className="flex flex-wrap gap-2">
           {categories.filter((c) => c.active || c.id === value.categoryId).map((c) => (
-            <Chip key={c.id} on={value.categoryId === c.id} dot={cssColor(c.colorToken)} onClick={() => set("categoryId", c.id)}
-              className={cx(value.categoryId === c.id && "!bg-transparent !text-fg !border-primary")}>{c.name}</Chip>
+            <Chip key={c.id} check on={value.categoryId === c.id} dot={cssColor(c.colorToken)} onClick={() => set("categoryId", c.id)}
+              className={cx(value.categoryId === c.id && "!bg-today !text-fg !border-primary")}>{c.name}</Chip>
           ))}
         </div>
       </div>
-      <Field label="日期"><Input type="date" value={value.date} onChange={(e) => set("date", e.target.value)} /></Field>
-      <div className="flex gap-2">
-        <Field label="開始"><Input type="time" step={900} value={value.startTime} err={!!conflicts?.length} onChange={(e) => set("startTime", e.target.value)} /></Field>
-        <Field label="結束"><Input type="time" step={900} value={value.endTime} err={!!conflicts?.length} onChange={(e) => set("endTime", e.target.value)} /></Field>
+      <Field label="日期" required><Input type="date" value={value.date} onChange={(e) => set("date", e.target.value)} /></Field>
+      <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="開始時間" required><Input type="time" step={900} value={value.startTime} err={!!conflicts?.length || timeBad} onChange={(e) => set("startTime", e.target.value)} /></Field>
+          <Field label="結束時間" required><Input type="time" step={900} value={value.endTime} err={!!conflicts?.length || timeBad} onChange={(e) => set("endTime", e.target.value)} /></Field>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted">用多久：</span>
+          {DURATIONS.map((d) => <Chip key={d.m} size="sm" on={durationMin === d.m} onClick={() => setDuration(d.m)}>{d.label}</Chip>)}
+        </div>
+        <div className={cx("rounded-md px-3.5 py-2 text-base", timeBad ? "bg-danger/10 text-danger" : "bg-today text-fg")}>
+          {timeBad ? "結束時間要比開始時間晚" : <><b>{fmtDate(dtstart)}</b> {fmtTime(dtstart)}–{fmtTime(dtend)}<span className="text-muted">（{durationText}）</span></>}
+        </div>
       </div>
       {allowRepeat && (
-        <button type="button" onClick={() => setRepeatOpen(true)} className="flex items-center justify-between rounded-md px-0.5 py-1.5 text-left">
-          <span className="text-[13px] font-bold text-primary">重複</span>
-          <span className="text-sm">{describe(value.repeat, dtstart)} <span className="text-muted">›</span></span>
+        <button type="button" onClick={() => setRepeatOpen(true)} className="flex min-h-[52px] items-center justify-between gap-3 rounded-md border-2 border-border bg-surface px-4 py-2.5 text-left hover:bg-primary/5">
+          <span className="flex items-center gap-2 text-base font-bold text-primary"><Icon name="repeat" size={20} />重複</span>
+          <span className="flex items-center gap-1 text-base">{describe(value.repeat, dtstart)}<Icon name="chevron-right" size={20} className="text-muted" /></span>
         </button>
       )}
-      <Field label="備註（選填）"><Input value={value.note} maxLength={2000} onChange={(e) => set("note", e.target.value)} placeholder="例：需要投影機" /></Field>
+      <Field label="備註（可不填）"><Input value={value.note} maxLength={2000} onChange={(e) => set("note", e.target.value)} placeholder="例：需要投影機、需開冷氣" /></Field>
       {conflicts && conflicts.length > 0 && canForce && (
-        <label className="flex items-start gap-3 rounded-md border-2 border-border bg-surface px-3.5 py-3">
-          <input type="checkbox" className="mt-0.5 h-5 w-5 accent-primary" checked={force} onChange={(e) => onForce(e.target.checked)} />
-          <span className="text-[13px] leading-relaxed"><b>強制建立（幹事）</b><br /><span className="text-muted">忽略衝突，兩筆登記並存。</span></span>
+        <label className="flex items-start gap-3 rounded-md border-2 border-border bg-surface px-4 py-3">
+          <input type="checkbox" className="mt-1 h-6 w-6 accent-primary" checked={force} onChange={(e) => onForce(e.target.checked)} />
+          <span className="text-base leading-relaxed"><b>仍要登記（幹事權限）</b><br /><span className="text-sm text-muted">忽略衝突，兩筆登記同時存在。</span></span>
         </label>
       )}
-      {error && <div className="text-sm text-danger">{error}</div>}
-      <div className="mt-2 flex gap-2">
+      {error && <div role="alert" className="flex items-center gap-2 rounded-md bg-danger/10 px-3.5 py-2.5 text-base font-bold text-danger"><Icon name="alert" size={20} />{error}</div>}
+      <div className="mt-1 flex gap-3">
         <Button variant="ghost" className="flex-1" onClick={onCancel}>取消</Button>
-        <Button type="submit" className="flex-[2]" disabled={busy || (!!conflicts?.length && !force)}>{submitLabel}</Button>
+        <Button type="submit" className="flex-[2]" icon="check" disabled={busy || (!!conflicts?.length && !force)}>{busy ? "儲存中…" : submitLabel}</Button>
       </div>
     </form>
   );

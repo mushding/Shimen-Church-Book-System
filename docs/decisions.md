@@ -90,3 +90,12 @@
 - Secrets 手動 `kubectl create secret`（每 ns 一次），不進 git；要 git 化再上 SOPS+age。
 - GCP：`infra/gcp/create.sh`（gcloud 指令，不上 Terraform——單台 VM 用 script 夠；想練 TF 再換）。
 - 待使用者：跑 create.sh、DNS、flux bootstrap、secrets、GHCR package 設 public、CUD。詳 `infra/README.md`。
+
+## UX 修訂（2026-08-16）— 會友 + 長者易用性
+- 目標客群 = 教會會友 + 長者 → **可讀性/大目標優先**：body 16px、按鈕/chip ≥44px、表單 label 16px；新增「大字」模式（`html.big-text` 根字級 112.5%，rem 連動含日曆）。
+- **不用 icon-only 控制項**：所有按鈕 icon + 中文字（大字/深色/管理後台/登出/新增登記）。FAB 改延伸式「＋ 新增登記」。
+- 日曆工具列自寫（`useCalendarController`，`headerToolbar={false}`）：「上一週/今天/下一週」依檢視換字（前一天/上個月…）、中文標題「2026年8月16日 – 22日」、Segmented 檢視切換；桌機 日/週/月/清單，手機 日/三日/清單。新增 **清單（list）檢視**（長者最好讀）。
+- 手機：header 只留標題 + 「設定」sheet（大字/深色/顏色依/管理後台/登出）；顏色軸切換移進 sheet。桌機全部外露。
+- 未登入：頂部提示卡「未登入也可以查看行事曆；想登記請先用 LINE 登入」。
+- 表單：「登記目的」→「活動名稱」、必填 ＊、「用多久」快速時長 chips（1/1.5/2/3 小時）、時間摘要列（含時長）、衝突文案講人話 + 下一步。錯誤 toast 需按「知道了」才關；成功 5 秒。
+- ui-ux-pro-max skill 只有 SKILL.md（無 search DB），依其優先表（a11y → 觸控 → 版面 → 字體 → 表單 → 導覽）人工套用。
