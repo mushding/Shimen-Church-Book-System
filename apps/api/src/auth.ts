@@ -14,6 +14,8 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET ?? "dev-only-secret-change-me-32chars!!",
   trustedOrigins: [BASE_URL],
   database: drizzleAdapter(db, { provider: "pg" }),
+  // dev/e2e only: lets /api/dev/login mint a real session without LINE (see app.ts). Never on in prod.
+  emailAndPassword: { enabled: process.env.DEV_LOGIN === "1" },
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 天
     updateAge: Number(process.env.SESSION_UPDATE_AGE ?? 60 * 60 * 24), // 滑動；POC V4 可設 10 秒

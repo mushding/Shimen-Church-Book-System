@@ -71,3 +71,9 @@
 - 決定：**時區用固定 +8 平移**（台灣無 DST），不用 rrule tzid；migration 用同一套展開，BYDAY 語意 = 舊 DevExpress 本地顯示。
 - 決定：DB 二選一 by env：`DATABASE_URL` → node-postgres，否則 pglite（dev/test 用 `memory://`）。
 - 測試：vitest 22 條（recur / conflicts+scopes / routes+roles / legacy parse+migrate）。真 dump 尚未跑（使用者待辦 #5）。
+
+## Phase 3 產出（2026-08-16）— Frontend v2
+- `apps/web`：TanStack Router（`/`、`/admin`）+ Query、`hc<AppType>` RPC client、FullCalendar v7（server 展開 instance，無 rrule plugin）、登記表單 + 重複規則編輯器（RRULE 產生/回讀/預覽）+ 衝突 409/強制、此筆/此後/全部 scope、拖曳/拉長、場地篩選 + 場地/類別色軸切換、暗色、admin 頁（場地/類別/角色）。
+- 決定：**不裝 shadcn/radix**（ponytail）：原生 `<dialog>` + tokens 已覆蓋 sheet/popover/focus trap；`apps/web/src/ui.tsx` 幾個小 primitive。要 a11y 更深再換。
+- 決定：dev/e2e 登入走 `DEV_LOGIN=1` + `/api/dev/login`（better-auth email/password 僅 dev 開）；Playwright happy path `pnpm e2e`（自起 api/web）。
+- 已知：bundle 650KB（router+query+rrule+FullCalendar）；要瘦再 code-split。時間輸入用原生 `<input type=date/time>`。

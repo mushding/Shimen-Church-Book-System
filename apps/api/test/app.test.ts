@@ -35,7 +35,18 @@ beforeAll(async () => {
   ]);
 });
 
+describe("dev login", () => {
+  it("is 404 unless DEV_LOGIN=1", async () => {
+    expect((await req("/api/dev/login", { method: "POST", body: JSON.stringify({ name: "x" }) })).status).toBe(404);
+  });
+});
+
 describe("auth & roles", () => {
+  it("/api/me never returns email", async () => {
+    const me = await (await req("/api/me", {}, "m1:member")).json();
+    expect(me).toEqual({ id: "m1", name: "name-m1", image: null, role: "member" });
+    expect(await (await req("/api/me")).json()).toBeNull();
+  });
   it("anonymous: read ok w/o user info; write 401", async () => {
     expect((await req("/api/rooms")).status).toBe(200);
     expect((await req("/api/bookings", { method: "POST", body: JSON.stringify(body) })).status).toBe(401);

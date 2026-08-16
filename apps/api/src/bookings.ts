@@ -65,7 +65,11 @@ export async function patchSeries(db: Db, id: number, p: BookingPatch, force: bo
     const start = patch.start ? D(patch.start) : occ;
     const end = patch.end ? D(patch.end) : new Date(start.getTime() + dur);
     const roomId = patch.roomId ?? s.roomId;
-    await assertFree(db, { dtstart: start, dtend: end, rrule: null, roomId }, force, { seriesId: id, occurrenceStart: occ });
+    // only re-check when the slot actually moves (a retitle must not trip over a forced overlap)
+    const prev = await db.query.bookingException.findFirst({ where: and(eq(bookingException.seriesId, id), eq(bookingException.originalStart, occ)) });
+    const prevStart = prev?.overrideStart ?? occ, prevEnd = prev?.overrideEnd ?? new Date(occ.getTime() + dur), prevRoom = prev?.overrideRoomId ?? s.roomId;
+    const moved = start.getTime() !== prevStart.getTime() || end.getTime() !== prevEnd.getTime() || roomId !== prevRoom;
+    if (moved) await assertFree(db, { dtstart: start, dtend: end, rrule: null, roomId }, force, { seriesId: id, occurrenceStart: occ });
     const ov = {
       cancelled: false, overrideStart: start, overrideEnd: end, overrideRoomId: roomId,
       overrideCategoryId: patch.categoryId ?? null, overrideTitle: patch.title ?? null, overrideNote: patch.note ?? null,
@@ -89,8 +93,11 @@ export async function patchSeries(db: Db, id: number, p: BookingPatch, force: bo
           await tx.update(bookingException).set({ originalStart: new Date(e.originalStart.getTime() + delta) }).where(eq(bookingException.id, e.id));
       }
       if (rrule !== s.rrule) await tx.delete(bookingException).where(eq(bookingException.seriesId, id)); // slots no longer meaningful
-      const exceptions = await tx.query.bookingException.findMany({ where: eq(bookingException.seriesId, id) });
-      await assertFree(tx as unknown as Db, { dtstart, dtend, rrule, roomId, exceptions }, force, { seriesId: id });
+      const moved = delta !== 0 || dtend.getTime() !== s.dtend.getTime() || rrule !== s.rrule || roomId !== s.roomId;
+      if (moved) {
+        const exceptions = await tx.query.bookingException.findMany({ where: eq(bookingException.seriesId, id) });
+        await assertFree(tx as unknown as Db, { dtstart, dtend, rrule, roomId, exceptions }, force, { seriesId: id });
+      }
       const [row] = await tx.update(bookingSeries).set({
         dtstart, dtend, rrule, roomId, categoryId: patch.categoryId ?? s.categoryId,
         title: patch.title ?? s.title, note: patch.note ?? s.note,

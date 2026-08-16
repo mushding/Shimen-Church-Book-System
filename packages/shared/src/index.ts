@@ -81,6 +81,9 @@ export type BookingInstance = {
   roomId: number;
   categoryId: number;
   recurring: boolean;
+  rrule: string | null; // series rule (null = single)
+  seriesStart: string; // series dtstart / dtend — needed for scope=all edits
+  seriesEnd: string;
   userId: string;
   /** null when viewer not logged in */
   user: { name: string; image: string | null } | null;

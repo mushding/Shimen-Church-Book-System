@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { createMiddleware } from "hono/factory";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -17,18 +18,32 @@ const roleOf = (u: User | null) => (u?.role ?? "member") as Role;
 const atLeast = (u: User | null, min: Role) => !!u && RANK[roleOf(u)] >= RANK[min];
 
 const requireRole = (min: Role) =>
-  async (c: any, next: () => Promise<void>) => {
-    const u = c.get("user") as User | null;
+  createMiddleware<Env>(async (c, next) => {
+    const u = c.get("user");
     if (!u) return c.json({ error: "unauthenticated" }, 401);
     if (!atLeast(u, min)) return c.json({ error: "forbidden" }, 403);
     await next();
-  };
+  });
 
 const idParam = zValidator("param", z.object({ id: z.coerce.number().int() }));
 const range = zValidator("query", z.object({ from: z.iso.datetime({ offset: true }), to: z.iso.datetime({ offset: true }) }));
 
+const DEV_LOGIN = process.env.DEV_LOGIN === "1" && process.env.NODE_ENV !== "production";
+
 export const app = new Hono<Env>()
   .on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw))
+  // dev/e2e helper: POST {name, role} → session cookie. Only when DEV_LOGIN=1.
+  .post("/api/dev/login", zValidator("json", z.object({ name: z.string().min(1), role: roleSchema.default("member") })), async (c) => {
+    if (!DEV_LOGIN) return c.json({ error: "not_found" }, 404);
+    const { name, role } = c.req.valid("json");
+    const email = `dev-${Buffer.from(name).toString("hex")}@dev.local`, password = "dev-password-123";
+    let headers: Headers;
+    try { headers = (await auth.api.signInEmail({ body: { email, password }, returnHeaders: true })).headers; }
+    catch { headers = (await auth.api.signUpEmail({ body: { email, password, name }, returnHeaders: true })).headers; }
+    await db.update(user).set({ role }).where(eq(user.email, email));
+    for (const v of headers.getSetCookie()) c.header("set-cookie", v, { append: true });
+    return c.json({ ok: true, name, role });
+  })
   .use("*", async (c, next) => {
     const s = await auth.api.getSession({ headers: c.req.raw.headers });
     c.set("user", (s?.user as User) ?? null);
@@ -41,7 +56,7 @@ export const app = new Hono<Env>()
     return c.json({ error: "internal" }, 500);
   })
 
-  .get("/api/me", (c) => c.json(c.get("user")))
+  .get("/api/me", (c) => { const u = c.get("user"); return c.json(u ? { id: u.id, name: u.name, image: u.image ?? null, role: roleOf(u) } : null); })
   .get("/api/rooms", async (c) => c.json(await db.select().from(room).orderBy(room.sort, room.id)))
   .get("/api/categories", async (c) => c.json(await db.select().from(category).orderBy(category.sort, category.id)))
 
@@ -55,6 +70,7 @@ export const app = new Hono<Env>()
       seriesId: o.seriesId, occurrenceStart: o.occurrenceStart.toISOString(),
       start: o.start.toISOString(), end: o.end.toISOString(),
       title: o.title, note: o.note, roomId: o.roomId, categoryId: o.categoryId, recurring: o.recurring,
+      rrule: o.rrule, seriesStart: o.seriesStart.toISOString(), seriesEnd: o.seriesEnd.toISOString(),
       userId: o.userId, mine: !!me && me.id === o.userId,
       user: me ? (users.get(o.userId) ?? null) : null,
     }));

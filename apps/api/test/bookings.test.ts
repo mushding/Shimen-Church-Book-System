@@ -88,6 +88,13 @@ describe("edit scopes", () => {
     await deleteSeries(db, s.id, "all");
     expect((await listOccurrences(db, T("2027-03-01T00:00:00+08:00"), T("2027-03-08T00:00:00+08:00"))).occurrences.filter((o) => o.roomId === 3)).toHaveLength(0);
   });
+  it("retitle-only edits skip conflict check (forced overlap stays editable)", async () => {
+    const a = await createSeries(db, "u1", inp({ roomId: 9, start: iso("2027-06-01T09:00:00+08:00"), end: iso("2027-06-01T10:00:00+08:00"), rrule: "FREQ=DAILY;COUNT=3" }), false);
+    await createSeries(db, "u2", inp({ roomId: 9, start: iso("2027-06-02T09:00:00+08:00"), end: iso("2027-06-02T10:00:00+08:00") }), true); // forced overlap
+    await patchSeries(db, a.id, { scope: "this", occurrenceStart: iso("2027-06-02T09:00:00+08:00"), patch: { title: "renamed" }, force: false }, false);
+    await patchSeries(db, a.id, { scope: "all", patch: { title: "renamed-all" }, force: false }, false);
+    await expect(patchSeries(db, a.id, { scope: "this", occurrenceStart: iso("2027-06-02T09:00:00+08:00"), patch: { start: iso("2027-06-02T09:30:00+08:00"), end: iso("2027-06-02T10:30:00+08:00") }, force: false }, false)).rejects.toBeInstanceOf(ConflictError);
+  });
   it("following on first occurrence == all; this on single == all", async () => {
     const s = await createSeries(db, "u1", inp({ roomId: 4, start: iso("2027-04-01T09:00:00+08:00"), end: iso("2027-04-01T10:00:00+08:00"), rrule: "FREQ=DAILY;COUNT=3" }), false);
     const r = await patchSeries(db, s.id, { scope: "following", occurrenceStart: iso("2027-04-01T09:00:00+08:00"), patch: { title: "x" }, force: false }, false);

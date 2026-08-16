@@ -36,6 +36,9 @@ export type Occurrence = {
   categoryId: number;
   userId: string;
   recurring: boolean;
+  rrule: string | null;
+  seriesStart: Date;
+  seriesEnd: Date;
 };
 
 /** Expand a series into concrete occurrences overlapping [from, to), applying exceptions. */
@@ -45,7 +48,7 @@ export function expandSeries(s: Series, exceptions: Exception[], from: Date, to:
   const out: Occurrence[] = [];
   const base = {
     seriesId: s.id, title: s.title, note: s.note, roomId: s.roomId, categoryId: s.categoryId,
-    userId: s.userId, recurring: !!s.rrule,
+    userId: s.userId, recurring: !!s.rrule, rrule: s.rrule, seriesStart: s.dtstart, seriesEnd: s.dtend,
   };
   // occurrence overlaps window if start < to && start + dur > from  → start in [from - dur, to)
   for (const os of occurrenceStarts(s.dtstart, s.rrule, new Date(from.getTime() - dur), to)) {

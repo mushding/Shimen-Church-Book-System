@@ -26,3 +26,6 @@
 
 ## 舊資料遷移
 `pnpm --filter api migrate:legacy dump.sql`（`src/legacy.ts`）：解析 mysqldump → user（`email = {sub 小寫}@line.invalid`；若該 sub 已登入過 v2 則沿用既有 `user.id`）+ account（`providerId=line, accountId=sub`）→ series（`legacy_id` upsert，可重跑）→ exDate 轉 cancelled exception；未知 room/category 名自動建 inactive 列並警告；`flyyoungTeamName` 進 note。
+
+## Dev / e2e 登入
+`DEV_LOGIN=1` 時 `POST /api/dev/login {name, role}` 用 better-auth email/password（dev only）發真 session cookie；`e2e/booking.spec.ts` 與本機測試用。prod 不設此變數 → 404、emailAndPassword 關閉。

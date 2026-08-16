@@ -4,6 +4,12 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev:web": "pnpm --filter web dev",
-    "dev:api": "pnpm --filter api dev"
+    "dev:api": "pnpm --filter api dev",
+    "e2e": "playwright test",
+    "test": "pnpm --filter api test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
   }
 }
