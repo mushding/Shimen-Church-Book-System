@@ -1,5 +1,22 @@
 # Design System v0.1（Phase 1，2026-08-16）
 
+## 未來 session 實作 UI 前必讀（給 AI 的指引）
+1. 視覺唯一真相：Claude Design **Design System「石門教會 Shimen Church」**
+   - id：`c3a36bb4-32f6-45e6-b714-2a62a6a26a5b`
+   - URL：https://claude.ai/design/p/c3a36bb4-32f6-45e6-b714-2a62a6a26a5b
+   - 載入方式：`mcp__claude-design__get_claude_design_prompt(design_system_id="c3a36bb4-32f6-45e6-b714-2a62a6a26a5b")` → 會注入完整 guide；元件 markup 用 `mcp__claude-design__list_files/read_file` 讀 `components/*.html`。
+   - 產新 mockup：`mcp__claude-design__create_project(name, design_system_id="c3a36bb4-…")`。
+2. Code 真相：`packages/ui/src/tokens.css` + `theme.css`（Tailwind v4 utilities：`bg-primary text-fg bg-surface border-border bg-today bg-room-N border-cat-* font-display rounded-md`）。DS 的 `styles.css` 前半段 = tokens.css 複本；改色改 tokens.css 再重推 DS。
+3. 畫面參考（探索 project，同 DS 風格）：「石門教會 場地登記 — 設計系統」
+   - project id：`dc73d60d-9e41-42e0-9875-ba9f5f653f92`
+   - 01 tokens/元件/手機三日：https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=%E7%9F%B3%E9%96%80%E6%95%99%E6%9C%83%E8%A8%AD%E8%A8%88%E7%B3%BB%E7%B5%B1.dc.html
+   - 02 桌機週視圖亮/暗：https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=02+%E6%A1%8C%E6%A9%9F%E4%B8%BB%E7%95%AB%E9%9D%A2.dc.html
+   - 03 新增/修改/衝突/重複/詳情/刪除：https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=03+%E6%96%B0%E5%A2%9E%E4%BF%AE%E6%94%B9%E7%99%BB%E8%A8%98.dc.html
+   - 04 管理後台：https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=04+%E7%AE%A1%E7%90%86%E5%BE%8C%E5%8F%B0.dc.html
+   - 05 登入/空/載入/錯誤/toast：https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=05+%E7%8B%80%E6%85%8B%E8%88%87%E7%99%BB%E5%85%A5.dc.html
+   - 讀法：`mcp__claude-design__read_file(project_id="dc73d60d-…", path="03 新增修改登記.dc.html")`。
+4. 參考來源：2026 雙語營 DS project `a99bc7dc-b807-440b-a88b-c25fc59cc847`（同教會 base，另一主題，勿直接套）。
+
 ## Claude Design **Design System**（正式）
 - 名稱「石門教會 Shimen Church」，id `c3a36bb4-32f6-45e6-b714-2a62a6a26a5b`（type DESIGN_SYSTEM）。
 - 來源 bundle：`packages/ui/design-system/`（readme.md 指南、styles.css = tokens + 元件層、foundations/、components/、templates/booking-mobile、theme.json、thumbnail.html）。
