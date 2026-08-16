@@ -53,6 +53,8 @@ export async function login() {
   window.location.href = url;
 }
 export async function logout() {
-  await fetch("/api/auth/sign-out", { method: "POST" });
+  // better-auth 415s without a JSON content-type → session was never cleared
+  const r = await fetch("/api/auth/sign-out", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+  if (!r.ok) { alert(`登出失敗（${r.status}），請再試一次`); return; }
   window.location.reload();
 }
