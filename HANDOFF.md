@@ -24,7 +24,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 - Claude Design：`.dc.html` 用 `sc-for` + class 定位（不要 `style="{{ }}"`），共用 `ds.css`；DS bundle 格式照 Modernist（`readme.md` + `styles.css` + `@dsCard` 首行註解）。
 - Playwright headless 驗 render（Chrome extension 常沒回應）。
 - rrule 2.8 無 `exports` map：Node ESM 只看到 CJS default → `recur.ts` 有 shim（`RRule = pkg.RRule ?? pkg.default.RRule`），其他檔從 `./recur` 拿 `RRule`。
-- 本機 port 3000 被別的東西佔（回 404）；smoke 用 `PORT=3001`。
+- port 3000 偶爾被暫時佔用；smoke 可用 `PORT=3001`。
 - zod 4：`.partial()` 不能接在 `.refine()` 後 → 先 base object 再各自 refine。
 
 ## What Didn't Work / 地雷
