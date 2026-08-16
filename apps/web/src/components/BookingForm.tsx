@@ -32,7 +32,9 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
   const dtend = useMemo(() => fromInputs(value.date, value.endTime), [value.date, value.endTime]);
   const durationMin = Math.round((dtend.getTime() - dtstart.getTime()) / 60_000);
   const set = <K extends keyof FormValue>(k: K, x: FormValue[K]) => onChange({ ...value, [k]: x });
-  const setDuration = (m: number) => onChange({ ...value, endTime: timeInput(addMinutes(dtstart, m)) });
+  // single-date form: end must stay on the same day → clamp at 23:59; chips that would cross midnight are disabled
+  const fits = (m: number) => addMinutes(dtstart, m).getDate() === dtstart.getDate();
+  const setDuration = (m: number) => onChange({ ...value, endTime: fits(m) ? timeInput(addMinutes(dtstart, m)) : "23:59" });
   const roomName = (id: number) => rooms.find((r) => r.id === id)?.name ?? "";
   if (repeatOpen)
     return <RepeatEditor value={value.repeat} dtstart={dtstart} onBack={() => setRepeatOpen(false)} onApply={(r) => { set("repeat", r); setRepeatOpen(false); }} />;
@@ -79,10 +81,10 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted">用多久：</span>
-          {DURATIONS.map((d) => <Chip key={d.m} size="sm" on={durationMin === d.m} onClick={() => setDuration(d.m)}>{d.label}</Chip>)}
+          {DURATIONS.map((d) => <Chip key={d.m} size="sm" on={durationMin === d.m} onClick={() => setDuration(d.m)} className={cx(!fits(d.m) && "opacity-40")}>{d.label}</Chip>)}
         </div>
         <div className={cx("rounded-md px-3.5 py-2 text-base", timeBad ? "bg-danger/10 text-danger" : "bg-today text-fg")}>
-          {timeBad ? "結束時間要比開始時間晚" : <><b>{fmtDate(dtstart)}</b> {fmtTime(dtstart)}–{fmtTime(dtend)}<span className="text-muted">（{durationText}）</span></>}
+          {timeBad ? "結束時間要比開始時間晚（登記不能跨過午夜，請分成兩筆）" : <><b>{fmtDate(dtstart)}</b> {fmtTime(dtstart)}–{fmtTime(dtend)}<span className="text-muted">（{durationText}）</span></>}
         </div>
       </div>
       {allowRepeat && (

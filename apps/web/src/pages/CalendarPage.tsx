@@ -80,7 +80,9 @@ export function CalendarPage() {
   // ---- open editor ----
   const openCreate = (start?: Date, end?: Date) => {
     if (!me) return toast("info", "請先用 LINE 登入，才能登記場地");
-    const s = start ?? roundTo(new Date(), 30), e = end ?? addMinutes(s, 60);
+    const s = start ?? roundTo(new Date(), 30);
+    let e = end ?? addMinutes(s, 60);
+    if (e.getDate() !== s.getDate()) e = new Date(s.getFullYear(), s.getMonth(), s.getDate(), 23, 59); // late night: don't cross midnight
     setForm(initialForm({ start: s, end: e, roomId: activeRooms.find((r) => shown(r.id))?.id ?? activeRooms[0]?.id, categoryId: categories.find((c) => c.active)?.id }));
     setConflicts(null); setForce(false); setErr(null); setEditor({ mode: "create" });
   };
