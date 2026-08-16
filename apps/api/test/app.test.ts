@@ -85,9 +85,9 @@ describe("auth & roles", () => {
     const r = await req("/api/admin/rooms", { method: "POST", body: JSON.stringify(room) }, "a1:admin");
     expect(r.status).toBe(201);
     const { id } = await r.json();
-    await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ sort: 42, allowOverlap: true }) }, "a1:admin");
+    await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ sort: 42 }) }, "a1:admin");
     const patched = await (await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ active: false }) }, "a1:admin")).json();
-    expect(patched).toMatchObject({ active: false, sort: 42, allowOverlap: true }); // partial patch must not reset other fields (zod4 default trap)
+    expect(patched).toMatchObject({ active: false, sort: 42 }); // partial patch must not reset other fields (zod4 default trap)
     // delete: free room → 204; room with bookings → 409; hex colour accepted
     expect((await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ colorToken: "#2E5F66" }) }, "a1:admin")).status).toBe(200);
     expect((await req(`/api/admin/rooms/${id}`, { method: "DELETE" }, "a1:admin")).status).toBe(204);

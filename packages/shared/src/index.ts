@@ -13,9 +13,8 @@ const roomFields = z.object({
   colorToken: z.string().regex(/^(room-[a-z0-9-]+|#[0-9a-fA-F]{6})$/), // DS token `room-N` or custom hex (admin colour picker)
   sort: z.number().int(),
   active: z.boolean(),
-  allowOverlap: z.boolean(), // e.g. 教會室外 — never conflicts
 });
-export const roomInput = roomFields.extend({ sort: roomFields.shape.sort.default(0), active: roomFields.shape.active.default(true), allowOverlap: roomFields.shape.allowOverlap.default(false) });
+export const roomInput = roomFields.extend({ sort: roomFields.shape.sort.default(0), active: roomFields.shape.active.default(true) });
 export const roomPatch = roomFields.partial();
 export type RoomInput = z.infer<typeof roomInput>;
 export const room = roomFields.extend({ id: z.number().int() });

@@ -1,7 +1,7 @@
 import { and, eq, inArray, lt, ne, or } from "drizzle-orm";
 import type { Conflict } from "@smsk/shared";
 import type { Db } from "./db";
-import { bookingException, bookingSeries, room, type Exception } from "./schema";
+import { bookingException, bookingSeries, type Exception } from "./schema";
 import { expandSeries, seriesEnd, type Occurrence } from "./recur";
 
 type Span = { start: Date; end: Date; roomId: number };
@@ -23,9 +23,6 @@ export type Exclude = { seriesId: number; occurrenceStart?: Date };
 
 /** DB-backed: conflicts for a new/edited series. `exclude` skips the series being edited (or one slot of it). */
 export async function checkConflicts(db: Db, cand: Candidate, exclude?: Exclude): Promise<Conflict[]> {
-  const r = await db.query.room.findFirst({ where: eq(room.id, cand.roomId) });
-  if (!r || r.allowOverlap) return [];
-
   const from = cand.dtstart;
   const to = seriesEnd(cand) ?? new Date(Math.max(Date.now(), cand.dtstart.getTime()) + HORIZON_MS);
   const { exceptions = [], ...c } = cand;

@@ -143,9 +143,10 @@ export const CAT_TOKENS = ["cat-church", "cat-group", "cat-youth", "cat-young", 
 export function toHex(token: string): string {
   if (token.startsWith("#")) return token.toLowerCase();
   const raw = getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim();
-  const m = /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/.exec(raw);
+  // minified CSS may serialise as `oklch(50% .09 225)`
+  const m = /oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)/.exec(raw);
   if (!m) return raw.startsWith("#") ? raw : "#888888";
-  return oklchToHex(+m[1], +m[2], +m[3]);
+  return oklchToHex(m[2] ? +m[1] / 100 : +m[1], +m[3], +m[4]);
 }
 // oklch → sRGB hex (Björn Ottosson's reference math; ~1e-3 accuracy is plenty for a picker seed)
 function oklchToHex(L: number, C: number, h: number): string {

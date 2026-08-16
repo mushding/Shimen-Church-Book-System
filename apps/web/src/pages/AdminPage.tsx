@@ -36,8 +36,8 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (b: boolean) => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)}
-      className={cx("relative box-border block h-[26px] w-11 shrink-0 rounded-full p-[3px] align-middle outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/50", on ? "bg-primary" : "bg-border")}>
-      <span className={cx("block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out", on ? "translate-x-[18px]" : "translate-x-0")} />
+      className={cx("inline-flex h-[26px] w-11 shrink-0 items-center rounded-full px-[3px] align-middle outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/50", on ? "bg-primary" : "bg-border")}>
+      <span className={cx("h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out", on ? "translate-x-[18px]" : "translate-x-0")} />
     </button>
   );
 }
@@ -122,14 +122,14 @@ function Rooms() {
   const inv = () => qc.invalidateQueries({ queryKey: ["rooms"] });
   const upd = useMutation({ mutationFn: ({ id, ...json }: Partial<Room> & { id: number }) => j(api.api.admin.rooms[":id"].$patch({ param: { id: String(id) }, json })), onSuccess: inv, onError: () => toast("err", "更新失敗") });
   const add = useMutation({
-    mutationFn: (name: string) => j(api.api.admin.rooms.$post({ json: { name, colorToken: `room-${(rooms.length % 10) + 1}`, sort: rooms.length, active: true, allowOverlap: false } })),
+    mutationFn: (name: string) => j(api.api.admin.rooms.$post({ json: { name, colorToken: `room-${(rooms.length % 10) + 1}`, sort: rooms.length, active: true } })),
     onSuccess: () => { inv(); toast("ok", "已新增場地"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
   });
   const del = useMutation({ mutationFn: (id: number) => j(api.api.admin.rooms[":id"].$delete({ param: { id: String(id) } })), onSuccess: () => { inv(); toast("ok", "已刪除"); } });
   return (
     <Section title="場地">
-      <EntityTable items={rooms} addLabel="場地" hint="拖曳 ⋮⋮ 排序。停用的場地不出現在篩選與表單，但舊登記仍可看。「可重疊」= 不做衝突偵測（例：教會室外）。"
-        cols={[{ head: "可重疊", cell: (r) => <Toggle on={r.allowOverlap} label="可重疊" onChange={(b) => upd.mutate({ id: r.id, allowOverlap: b })} /> }]}
+      <EntityTable items={rooms} addLabel="場地" hint="拖曳 ⋮⋮ 排序。停用的場地不出現在篩選與表單，但舊登記仍可看。"
+        cols={[]}
         onPatch={(id, p) => upd.mutateAsync({ id, ...p })} onDelete={(r) => del.mutateAsync(r.id)} onAdd={(n) => add.mutateAsync(n)} />
     </Section>
   );

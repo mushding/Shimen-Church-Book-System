@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../src/db";
 import { migrate } from "../src/migrate";
 import { seed } from "../src/seed";
-import { bookingException, bookingSeries, room, user } from "../src/schema";
+import { bookingException, bookingSeries, user } from "../src/schema";
 import { ConflictError, createSeries, deleteSeries, listOccurrences, patchSeries } from "../src/bookings";
 import { checkConflicts } from "../src/conflicts";
 
@@ -29,7 +29,7 @@ describe("conflicts", () => {
     await createSeries(db, "u2", inp({ start: iso("2026-09-04T21:30:00+08:00"), end: iso("2026-09-04T22:00:00+08:00") }), false); // touching = ok
     await createSeries(db, "u2", inp({ roomId: 5 }), false); // other room ok
   });
-  it("recurring vs single, both directions; force bypasses; allowOverlap room ignores", async () => {
+  it("recurring vs single, both directions; force bypasses", async () => {
     const weekly = await createSeries(db, "u1", inp({ start: iso("2026-10-02T19:00:00+08:00"), end: iso("2026-10-02T21:00:00+08:00"), rrule: "FREQ=WEEKLY;BYDAY=FR;COUNT=4" }), false);
     // 3rd occurrence = 10/16
     await expect(createSeries(db, "u2", inp({ start: iso("2026-10-16T20:00:00+08:00"), end: iso("2026-10-16T22:00:00+08:00") }), false)).rejects.toBeInstanceOf(ConflictError);
@@ -40,10 +40,6 @@ describe("conflicts", () => {
     // force
     const forced = await createSeries(db, "u2", inp({ start: iso("2026-10-16T20:00:00+08:00"), end: iso("2026-10-16T22:00:00+08:00") }), true);
     await deleteSeries(db, forced.id, "all");
-    // allowOverlap room
-    const [outdoor] = await db.insert(room).values({ name: "教會室外", colorToken: "#77aa88", allowOverlap: true }).returning();
-    await createSeries(db, "u1", inp({ roomId: outdoor.id }), false);
-    await createSeries(db, "u2", inp({ roomId: outdoor.id }), false);
     await deleteSeries(db, weekly.id, "all");
   });
   it("cancelled occurrence frees the slot; edited series excludes itself", async () => {

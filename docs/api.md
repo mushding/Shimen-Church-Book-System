@@ -3,7 +3,7 @@
 型別來源：`apps/api/src/app.ts` 匯出 `AppType`（前端 `hc<AppType>()`），zod schema 在 `@smsk/shared`。
 
 ## 資料模型
-- `room` / `category`：admin 維護；`colorToken` 對應 `@smsk/ui` 的 `bg-room-N` / `bg-cat-xxx`；`room.allowOverlap=true` 不做衝突偵測（戶外/小組場地）。
+- `room` / `category`：admin 維護；`colorToken` 對應 `@smsk/ui` 的 `bg-room-N` / `bg-cat-xxx`；所有場地皆做衝突偵測（曾有 allowOverlap，2026-08-16 移除）。
 - `booking_series`：一筆登記 = 一個 series。`dtstart/dtend` 為第一次的起訖（timestamptz），`rrule` 為 RRULE body（無 DTSTART，UNTIL 為 UTC `Z`），`null` = 單次。`legacy_id` = 舊 `Appointment.pkId`。
 - `booking_exception`：`(series_id, original_start)` 唯一；`cancelled` 或 `override_*`（時間/標題/備註/場地/類別）。
 - 展開：server 端 `recur.ts`，**台北固定 +8 無 DST → 平移到 wall-clock 展開再平移回來**（BYDAY 依台北星期，不吃 rrule tzid）。

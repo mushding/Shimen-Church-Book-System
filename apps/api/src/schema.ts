@@ -11,7 +11,6 @@ export const room = pgTable("room", {
   colorToken: text("color_token").notNull(), // room-N → bg-room-N
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
-  allowOverlap: boolean("allow_overlap").notNull().default(false),
 });
 
 export const category = pgTable("category", {

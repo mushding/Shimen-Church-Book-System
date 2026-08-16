@@ -85,7 +85,6 @@ erDiagram
     text color_token "room-N → bg-room-N"
     int sort
     bool active
-    bool allow_overlap "true = 不做衝突偵測"
   }
   category {
     int id PK
@@ -141,7 +140,6 @@ sequenceDiagram
   U->>W: FAB / 拖選時段 → 表單 → 儲存
   W->>A: POST /api/bookings {room, cat, start, end, rrule, force?}
   A->>A: session → role；zod 驗證
-  A->>D: room.allow_overlap?
   A->>C: 展開候選 occurrences（≤2y）
   C->>D: 同場地 series + exceptions（含 override 移入）
   C->>C: 區間重疊比對
