@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=.env watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "typecheck": "tsc --noEmit",
     "auth:schema": "npx @better-auth/cli generate --config src/auth.ts --output src/schema.auth.ts -y",
     "migrate:legacy": "tsx scripts/migrate-legacy.ts",
