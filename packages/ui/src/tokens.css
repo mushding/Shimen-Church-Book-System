@@ -1,0 +1,62 @@
+/*
+ * 石門教會 design tokens — single source of truth.
+ * 對應 Claude Design「石門教會設計系統.dc.html」v0.1。
+ * 兩層：--smsk-* = 教會 base；語意層（--bg/--fg/--primary…）= 登記主題，.dark 覆寫。
+ */
+:root {
+  /* ---- 石門教會 base ---- */
+  --smsk-teal: oklch(0.42 0.06 205);
+  --smsk-teal-deep: oklch(0.36 0.06 205);
+  --smsk-teal-soft: oklch(0.90 0.04 180);
+  --smsk-cream: oklch(0.96 0.03 90);
+  --smsk-paper: oklch(0.99 0.015 95);
+  --smsk-ink: oklch(0.38 0.03 205);
+  --smsk-line: oklch(0.88 0.03 90);
+  --smsk-red: oklch(0.52 0.15 25);
+  --smsk-font-display: "Huninn", "Noto Sans TC", "PingFang TC", sans-serif;
+  --smsk-font-body: "Noto Sans TC", "PingFang TC", system-ui, sans-serif;
+
+  /* ---- 登記主題 semantic（light）---- */
+  --bg: var(--smsk-cream);
+  --surface: var(--smsk-paper);
+  --fg: var(--smsk-ink);
+  --muted: oklch(0.55 0.02 205);
+  --primary: var(--smsk-teal);
+  --primary-fg: oklch(0.97 0.01 180);
+  --border: var(--smsk-line);
+  --danger: var(--smsk-red);
+  --today: oklch(0.955 0.03 180);
+
+  /* ---- 場地色票（同 L/C 家族，只變 hue）---- */
+  --room-1: oklch(0.50 0.09 225);
+  --room-2: oklch(0.58 0.09 205);
+  --room-3: oklch(0.55 0.09 265);
+  --room-4: oklch(0.65 0.08 185);
+  --room-5: oklch(0.55 0.13 25);
+  --room-6: oklch(0.70 0.12 80);
+  --room-7: oklch(0.52 0.11 150);
+  --room-8: oklch(0.65 0.11 125);
+  --room-9: oklch(0.62 0.12 350);
+  --room-10: oklch(0.50 0.01 205);
+
+  /* ---- 類別細條 ---- */
+  --cat-church: oklch(0.62 0.13 60);
+  --cat-group: oklch(0.52 0.15 25);
+  --cat-youth: oklch(0.45 0.10 245);
+  --cat-young: oklch(0.48 0.12 300);
+  --cat-kids: oklch(0.48 0.10 150);
+  --cat-personal: oklch(0.55 0.02 205);
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-pill: 999px;
+}
+
+.dark {
+  --bg: oklch(0.22 0.02 205);
+  --surface: oklch(0.27 0.02 205);
+  --fg: oklch(0.92 0.02 90);
+  --muted: oklch(0.70 0.02 205);
+  --primary: oklch(0.80 0.06 180);
+  --primary-fg: oklch(0.25 0.03 205);
+  --border: oklch(0.35 0.02 205);
+  --today: oklch(0.32 0.04 200);
+}

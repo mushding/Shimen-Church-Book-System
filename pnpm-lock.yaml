@@ -50,6 +50,9 @@ importers:
       '@fullcalendar/rrule':
         specifier: 7.0.2
         version: 7.0.2(rrule@2.8.1)(temporal-polyfill@1.0.4)
+      '@smsk/ui':
+        specifier: workspace:^
+        version: link:../../packages/ui
       react:
         specifier: ^19.1.0
         version: 19.2.8
@@ -84,6 +87,8 @@ importers:
       vite:
         specifier: ^7.0.0
         version: 7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.12)
+
+  packages/ui: {}
 
 packages:
 

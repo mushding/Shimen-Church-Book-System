@@ -1,33 +1,8 @@
 @import "tailwindcss";
+@import "@smsk/ui/tokens.css";
+@import "@smsk/ui/theme.css";
 @import "@fullcalendar/react/skeleton.css";
-
-/* ---- 石門教會 base tokens（POC 版，之後搬到 packages/ui） ---- */
-@theme {
-  --font-sans: "Huninn", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
-
-  --color-cream: #f7f2de;
-  --color-paper: #fffdf4;
-  --color-ink: #2e4a4e;
-  --color-teal: #2e5f66;
-  --color-teal-dark: #24505a;
-  --color-mint: #cfe2cf;
-  --color-line: #e5dbbb;
-
-  /* 場地色票：從 const.ts 重調到同一彩度家族 */
-  --color-room-1: #2e5f66;
-  --color-room-2: #4a8a8f;
-  --color-room-3: #5b7db1;
-  --color-room-4: #6fb1a5;
-  --color-room-5: #c0564f;
-  --color-room-6: #d3a03a;
-  --color-room-7: #3f8f52;
-  --color-room-8: #8bb04a;
-  --color-room-9: #cf6f8f;
-  --color-room-10: #6e6e6e;
-}
-
-@custom-variant dark (&:where(.dark, .dark *));
+@import url("https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap");
 
 html { font-family: var(--font-sans); }
-body { @apply bg-cream text-ink; }
-.dark body { @apply bg-[#1d2a2c] text-[#e8e4d6]; }
+body { @apply bg-bg text-fg; }

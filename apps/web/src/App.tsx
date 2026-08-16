@@ -53,19 +53,19 @@ export function App() {
 
   return (
     <div className={dark ? "dark" : ""}>
-      <div className="min-h-screen bg-cream text-ink dark:bg-[#1d2a2c] dark:text-[#e8e4d6] p-3 md:p-6 space-y-3">
+      <div className="min-h-screen bg-bg text-fg p-3 md:p-6 space-y-3">
         <header className="flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-bold text-teal dark:text-mint">石門教會場地登記 · POC</h1>
+          <h1 className="font-display text-xl font-bold text-primary">石門教會場地登記 · POC</h1>
           <div className="ml-auto flex items-center gap-2 text-sm">
             {me ? (<>
               {me.image && <img src={me.image} className="h-7 w-7 rounded-full" alt="" />}
               <span>{me.name} <span className="opacity-60">({me.role ?? "member"})</span></span>
-              <button className="rounded-full border-2 border-teal px-3 py-1" onClick={logout}>登出</button>
+              <button className="rounded-full border-2 border-primary px-3 py-1" onClick={logout}>登出</button>
             </>) : (
               <button className="rounded-full bg-[#06C755] px-3 py-1 font-semibold text-white" onClick={login}>LINE 登入</button>
             )}
           </div>
-          <button className="rounded-full border-2 border-teal px-3 py-1 text-sm" onClick={() => setDark(!dark)}>
+          <button className="rounded-full border-2 border-primary px-3 py-1 text-sm" onClick={() => setDark(!dark)}>
             {dark ? "亮" : "暗"}
           </button>
         </header>
@@ -73,7 +73,7 @@ export function App() {
         {/* POC #3 房間篩選 */}
         <div className="flex flex-wrap gap-2">
           {ROOMS.map((r) => (
-            <label key={r.id} className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm cursor-pointer border-2 select-none ${shown.has(r.id) ? `${ROOM_BG[r.id]} text-white border-transparent` : "border-line text-ink/60 dark:text-white/50"}`}>
+            <label key={r.id} className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm cursor-pointer border-2 select-none ${shown.has(r.id) ? `${ROOM_BG[r.id]} text-white border-transparent` : "border-border text-muted"}`}>
               <input type="checkbox" className="hidden" checked={shown.has(r.id)}
                 onChange={() => setShown((s) => { const n = new Set(s); n.has(r.id) ? n.delete(r.id) : n.add(r.id); return n; })} />
               {r.name}
@@ -97,19 +97,19 @@ export function App() {
           events={events}
           /* POC #2：只用 class props，不寫 .fc-* override */
           headerToolbarClass="mb-3 flex flex-wrap items-center gap-2"
-          toolbarTitleClass="text-lg font-bold text-teal dark:text-mint"
-          buttonClass={(b) => `rounded-full px-3 py-1 text-sm font-semibold border-2 border-teal ${b.isSelected ? "bg-teal text-white" : "text-teal dark:text-mint hover:bg-teal/10"}`}
+          toolbarTitleClass="font-display text-lg font-bold text-primary"
+          buttonClass={(b) => `rounded-full px-3 py-1 text-sm font-semibold border-2 border-primary ${b.isSelected ? "bg-primary text-primary-fg" : "text-primary hover:bg-primary/10"}`}
           buttonGroupClass="flex gap-1"
-          viewClass="rounded-2xl border-2 border-line bg-paper dark:bg-[#22333a] dark:border-white/10 overflow-hidden"
-          dayHeaderClass="py-2 text-center text-sm font-semibold border-b border-line dark:border-white/10"
-          dayHeaderInnerClass={(d) => (d.isToday ? "text-teal dark:text-mint underline underline-offset-4" : "")}
-          dayCellClass={(d) => `border border-line/60 dark:border-white/10 ${d.isToday ? "bg-mint/30 dark:bg-teal/30" : ""}`}
-          dayLaneClass={(d) => `border-l border-line/60 dark:border-white/10 ${d.isToday ? "bg-mint/20 dark:bg-teal/20" : ""}`}
-          slotLaneClass="border-t border-line/40 dark:border-white/5"
-          slotHeaderClass="pr-2 text-xs text-ink/60 dark:text-white/50 text-right"
-          nowIndicatorLineClass="border-t-2 border-room-5"
-          nowIndicatorDotClass="bg-room-5"
-          eventClass={(i) => `${ROOM_BG[i.event.extendedProps.roomId as number]} rounded-md text-white shadow-sm ring-1 ring-black/10 ${i.isDragging ? "opacity-70" : ""}`}
+          viewClass="rounded-lg border-2 border-border bg-surface overflow-hidden"
+          dayHeaderClass="py-2 text-center text-sm font-semibold border-b border-border"
+          dayHeaderInnerClass={(d) => (d.isToday ? "text-primary underline underline-offset-4" : "")}
+          dayCellClass={(d) => `border border-border/60 ${d.isToday ? "bg-today" : ""}`}
+          dayLaneClass={(d) => `border-l border-border/60 ${d.isToday ? "bg-today" : ""}`}
+          slotLaneClass="border-t border-border/40"
+          slotHeaderClass="pr-2 text-xs text-muted text-right"
+          nowIndicatorLineClass="border-t-2 border-danger"
+          nowIndicatorDotClass="bg-danger"
+          eventClass={(i) => `${ROOM_BG[i.event.extendedProps.roomId as number]} rounded-sm text-white shadow-sm ring-1 ring-black/10 ${i.isDragging ? "opacity-70" : ""}`}
           eventInnerClass="px-1.5 py-0.5 leading-tight"
           eventContent={(i) => (
             <div className="text-[11px] md:text-xs">
@@ -134,9 +134,9 @@ export function App() {
 
         {pop && (
           <div className="fixed inset-0 z-40" onClick={() => setPop(null)}>
-            <div className="absolute z-50 w-64 rounded-2xl border-2 border-line bg-paper text-ink p-3 shadow-xl dark:bg-[#22333a] dark:text-white dark:border-white/10"
+            <div className="absolute z-50 w-64 rounded-lg border-2 border-border bg-surface text-fg p-3 shadow-xl"
               style={{ left: pop.x, top: pop.y }} onClick={(e) => e.stopPropagation()}>
-              <div className="font-bold text-teal dark:text-mint">{pop.title}</div>
+              <div className="font-display font-bold text-primary">{pop.title}</div>
               <div className="text-sm">{pop.time}</div>
               <div className="text-sm">{pop.room} · {pop.user}</div>
               {pop.series && <div className="mt-1 text-xs opacity-70">{pop.series}</div>}
@@ -144,7 +144,7 @@ export function App() {
           </div>
         )}
 
-        <pre className="text-[11px] whitespace-pre-wrap rounded-xl bg-paper/70 dark:bg-white/5 p-2 border border-line dark:border-white/10">
+        <pre className="text-[11px] whitespace-pre-wrap rounded-md bg-surface/70 p-2 border border-border">
           {log.length ? log.join("\n") : "拖曳 / resize 事件會印在這裡（POC #5）"}
         </pre>
       </div>

@@ -1,0 +1,42 @@
+/* Tailwind v4 @theme bridge：把 tokens 變成 utility（bg-primary, text-fg, bg-room-5, rounded-md…） */
+
+@theme inline {
+  --font-display: var(--smsk-font-display);
+  --font-sans: var(--smsk-font-body);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
+  --color-today: var(--today);
+  --color-teal-soft: var(--smsk-teal-soft);
+
+  --color-room-1: var(--room-1);
+  --color-room-2: var(--room-2);
+  --color-room-3: var(--room-3);
+  --color-room-4: var(--room-4);
+  --color-room-5: var(--room-5);
+  --color-room-6: var(--room-6);
+  --color-room-7: var(--room-7);
+  --color-room-8: var(--room-8);
+  --color-room-9: var(--room-9);
+  --color-room-10: var(--room-10);
+
+  --color-cat-church: var(--cat-church);
+  --color-cat-group: var(--cat-group);
+  --color-cat-youth: var(--cat-youth);
+  --color-cat-young: var(--cat-young);
+  --color-cat-kids: var(--cat-kids);
+  --color-cat-personal: var(--cat-personal);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-pill: var(--r-pill);
+}
+
+@custom-variant dark (&:where(.dark, .dark *));

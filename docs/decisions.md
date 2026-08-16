@@ -61,3 +61,6 @@
 - **FullCalendar v7 定案**：桌機 8 項 7 過（Tailwind-only theming、rrule+exdate、DnD 語意、bundle 150KB 含 React）；真機觸控待使用者手機驗。→ `04-poc-fullcalendar.md`
 - **better-auth 定案**：程式面全通（preset + HS256 覆寫、schema gen、PKCE、CSRF、role middleware）；真帳號 V1–V6/V9/V10 待使用者本機用 secret 驗。→ `05-poc-better-auth.md`
 - Phase 0 完成 → 進 Phase 1（Design System）。
+
+## Phase 1 產出（2026-08-16）
+- Design 探索頁（Claude Design）+ `packages/ui` tokens/theme 落地，`apps/web` POC 已改吃 tokens（亮/暗驗證）。詳 `docs/design-system.md`。待使用者審色/字體後修訂。
