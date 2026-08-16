@@ -59,7 +59,7 @@ Phase 3 前端已落地。接下來：
 ```sh
 pnpm install
 pnpm dev:api        # :3000（pglite，資料在 apps/api/.pglite）
-pnpm dev:web        # :5173（/api 反代）
+pnpm dev:web        # :5173（/api 反代；API_URL=http://localhost:3001 可改目標）
 cd apps/api && npx drizzle-kit generate   # schema → drizzle/*.sql（改 src/schema.ts 後）
 pnpm --filter api test                     # vitest（pglite memory://）
 pnpm --filter api migrate:legacy dump.sql  # 舊 MySQL dump → v2

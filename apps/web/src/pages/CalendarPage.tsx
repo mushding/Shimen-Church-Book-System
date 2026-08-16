@@ -174,7 +174,7 @@ export function CalendarPage() {
           allDaySlot={false} nowIndicator expandRows
           eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
           slotHeaderFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-          editable={!!me} selectable={!!me} selectMirror
+          editable={!!me} selectable={!!me} selectMirror eventResizableFromStart
           eventLongPressDelay={400} selectLongPressDelay={400}
           datesSet={(i: DatesSetInfo) => setRange({ from: i.start, to: i.end })}
           events={events}
@@ -194,9 +194,12 @@ export function CalendarPage() {
           eventClass={(i) => {
             const b = i.event.extendedProps.b as BookingInstance;
             const bg = axis === "room" ? roomBg(roomOf(b.roomId)?.colorToken ?? "") : catBg(catOf(b.categoryId)?.colorToken ?? "");
-            return cx(bg, "rounded-sm text-white shadow-sm ring-1 ring-black/10 overflow-hidden", i.isDragging && "opacity-70", i.isMirror && "opacity-60");
+            return cx(bg, "group rounded-sm text-white shadow-sm ring-1 ring-black/10 overflow-hidden", (i.isDragging || i.isResizing) && "opacity-70", i.isMirror && "opacity-60");
           }}
           eventInnerClass="pl-2.5 pr-1.5 py-0.5 leading-tight relative"
+          /* resize handles (top/bottom edge): 8px hit area, cursor hint, grip visible on hover */
+          eventBeforeClass={(i) => cx("absolute inset-x-0 top-0 h-2 z-10", i.isStartResizable && "cursor-ns-resize")}
+          eventAfterClass={(i) => cx("absolute inset-x-0 bottom-0 h-2 z-10", i.isEndResizable && "cursor-ns-resize after:absolute after:left-1/2 after:bottom-0.5 after:h-1 after:w-6 after:-translate-x-1/2 after:rounded-full after:bg-white/70 after:opacity-0 group-hover:after:opacity-100")}
           eventContent={(i) => {
             const b = i.event.extendedProps.b as BookingInstance | undefined;
             if (!b) return <div className="text-[11px] px-1">{i.timeText}</div>;
