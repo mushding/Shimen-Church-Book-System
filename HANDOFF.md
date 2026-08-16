@@ -16,7 +16,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
   - 全部在 `docs/design-system.md` 有 id/URL/載入方式。
 - **Phase 2 完成（backend v2，2026-08-16）**：`packages/shared` zod contract；`apps/api` schema/recur/conflicts/bookings(scopes)/app(Hono RPC)/legacy migration；22 vitest 全過；`pnpm --filter api test`。契約與語意見 `docs/api.md`。migration script 已測但**不會用到**（舊資料遺失，全新起步）。
 - **Phase 3 完成（frontend v2，2026-08-16）**：`apps/web` 正式版（Router/Query/RPC/FullCalendar/表單/scope/衝突/admin/暗色/手機三日）；Playwright happy path `pnpm e2e` 綠；api 25 vitest 綠。真 LINE 登入 V1/V2 已驗（accountId = 舊 userId）。
-- **Phase 4 完成（infra 檔案，2026-08-16）**：`Dockerfile`（單 image）、`.github/workflows/{ci,image}.yml`、`infra/`（Flux/kustomize/cert-manager/Postgres/backup/GCP script）+ `infra/README.md` runbook。**尚未真的開 VM / bootstrap**（要使用者 gcloud 帳號）。
+- **Phase 4 完成（infra 檔案，2026-08-16）**：`Dockerfile`（單 image）、`.github/workflows/{ci,image}.yml`、`infra/`（Flux/kustomize/cert-manager/Postgres/backup/GCP script）+ `infra/README.md` runbook。**已上雲（2026-08-16）**：GCP project `smsk-app`、VM `smsk-k3s`（asia-east1-b，IP `104.199.232.239`）、k3s v1.36、Flux bootstrap 完成（`infra/clusters/smsk/flux-system` 在 repo）、cert-manager/issuer Ready、兩個 ns secrets 已建、**staging app Running 且經 IP+Host 驗過**；prod pod 等第一個 `v*` tag。kubeconfig `~/.kube/smsk.yaml`（走 `gcloud compute ssh -- -L 6443:127.0.0.1:6443` 隧道）。
 - Repo：`~/Desktop/Github/personal/shimen-church-book-system-v2` → GitHub **`mushding/Shimen-Church-Book-System`**（public；remote `git@github.com-personal:`，個人 key 已註冊）。舊 GitLab repo `shimen-church-book-system` 只 push 了 docs（pre-plan/decisions/survey 01–03）+ `.env.example`。
 
 ## What Worked
@@ -51,7 +51,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 ## Next Steps（Phase 4：infra）+ 打磨
 Phase 3 前端已落地。接下來：
 1. **使用者先過一輪 UI**（`pnpm dev:api` + `pnpm dev:web`，或 `DEV_LOGIN=1 pnpm dev:api` 後 `curl -X POST localhost:5173/api/dev/login -d '{"name":"x","role":"admin"}'` 拿 cookie）：手機真機觸控拖曳、色相、密度。回饋 → 改 `apps/web/src/*` / `packages/ui/tokens.css`。
-2. Phase 4 上線（使用者操作，照 `infra/README.md` §2–§5）：`PROJECT=… ./infra/gcp/create.sh` → DNS → `flux bootstrap` → secrets → GHCR package public → 看 `flux get ks`。我可協助 debug（貼 `flux logs` / `kubectl describe`）。
+2. 上線收尾（使用者）：**Cloudflare DNS** `staging.book` A → `104.199.232.239`（DNS-only 先）→ 憑證自動簽 → LINE console 加 `https://staging.book.smsk.church/api/auth/oauth2/callback/line` → 用手機驗 staging。滿意後：打 tag `v1.0.0`（`git tag v1.0.0 && git push --tags`）→ prod 滾出 → DNS `book` 切過去 → LINE prod callback → `set-role` 第一個 admin → 舊 DO 一週後關。1–2 週後買 1 年 CUD。
 3. Phase 5：staging 驗 → LINE console 加 prod callback → DNS 切換 → 第一個 admin 用 `set-role` → 舊 DO 保留一週。（無資料遷移。）
 4. 打磨（可後）：code-split（bundle 650KB）、eventContent 顯示多筆 conflict、admin 場地拖曳排序、i18n 時間格式一致。
 5. Phase 2 尾巴（等使用者）：V3/V4/V5/V10；本機 PG（`DATABASE_URL`）或續用 pglite。
