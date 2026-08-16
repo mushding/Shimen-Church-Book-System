@@ -213,7 +213,7 @@ export function CalendarPage() {
       </Modal>
 
       {!me && (
-        <div className="mx-3 mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-2 border-primary/30 bg-surface px-4 py-3 text-base md:mx-6">
+        <div className="anim-in mx-3 mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border-2 border-primary/30 bg-surface px-4 py-3 text-base md:mx-6">
           <Icon name="info" size={22} className="text-primary" />
           <div className="flex-1 leading-snug"><b>未登入也可以查看行事曆。</b><span className="text-muted">想登記場地，請先用 LINE 登入。</span></div>
           <Button size="sm" onClick={login} className="!border-[#06C755] !bg-[#06C755] !text-white">用 LINE 登入</Button>
@@ -227,7 +227,7 @@ export function CalendarPage() {
           <Button variant="ghost" size="sm" onClick={() => cal.today()}>今天</Button>
           <Button variant="ghost" size="sm" onClick={() => cal.next()} aria-label={nextLabel}><span className="hidden sm:inline">{nextLabel}</span><Icon name="chevron-right" size={20} /></Button>
         </div>
-        <h2 className="font-display text-lg font-bold text-primary md:text-xl" aria-live="polite">{title}</h2>
+        <h2 key={title} className="anim-fade font-display text-lg font-bold text-primary md:text-xl" aria-live="polite">{title}</h2>
         <div className="ml-auto flex items-center gap-2">
           {bookings.isFetching && <span className="text-sm text-muted">載入中…</span>}
           <Segmented size={mobile ? "sm" : "md"} label="切換檢視" value={activeView} onChange={(v) => { setView(v); cal.changeView(v); }} options={viewOptions} />
@@ -285,7 +285,7 @@ export function CalendarPage() {
       </Modal>
 
       {/* ---- calendar ---- */}
-      <div className="px-2 pb-28 md:px-6 md:pb-8">
+      <div key={activeView} className="anim-fade px-2 pb-28 md:px-6 md:pb-8">
         <Calendar
           key={mobile ? "m" : "d"}
           controller={cal}
@@ -378,7 +378,7 @@ export function CalendarPage() {
 
       {me && (
         <button onClick={() => openCreate()}
-          className="fixed bottom-6 right-4 z-30 flex min-h-[56px] items-center gap-2 rounded-pill bg-primary pl-4 pr-6 text-lg font-bold text-primary-fg shadow-[0_8px_20px_rgba(46,95,102,.35)] hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:bottom-8 md:right-8">
+          className="anim-in fixed bottom-6 right-4 z-30 flex min-h-[56px] items-center gap-2 rounded-pill bg-primary pl-4 pr-6 text-lg font-bold text-primary-fg shadow-[0_8px_20px_rgba(46,95,102,.35)] [transition-property:filter,transform] active:scale-95 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:bottom-8 md:right-8">
           <Icon name="plus" size={26} />新增登記
         </button>
       )}

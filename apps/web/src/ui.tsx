@@ -53,7 +53,7 @@ export function Button({ variant = "primary", size = "md", icon, className, chil
     <button
       type="button"
       {...p}
-      className={cx("inline-flex items-center justify-center gap-1.5 rounded-pill border-2 font-bold whitespace-nowrap transition-[filter,background-color] disabled:opacity-45 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      className={cx("inline-flex items-center justify-center gap-1.5 rounded-pill border-2 font-bold whitespace-nowrap [transition-property:background-color,border-color,color,filter,transform] active:scale-[.97] disabled:opacity-45 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         size === "sm" ? "px-3.5 py-1.5 text-sm min-h-[40px]" : size === "lg" ? "px-6 py-3 text-lg min-h-[56px]" : "px-5 py-2.5 text-base min-h-[48px]", BTN[variant], className)}
     >
       {icon && <Icon name={icon} size={size === "sm" ? 18 : 20} />}
@@ -66,7 +66,7 @@ export function Button({ variant = "primary", size = "md", icon, className, chil
 export function Chip({ on, color, children, onClick, className, dot, size = "md", check }: { on: boolean; color?: string; children: ReactNode; onClick?: () => void; className?: string; dot?: string; size?: "sm" | "md"; check?: boolean }) {
   return (
     <button type="button" onClick={onClick} aria-pressed={on} style={on && color ? { background: color, borderColor: color } : undefined}
-      className={cx("inline-flex items-center rounded-pill border-2 font-bold whitespace-nowrap select-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+      className={cx("inline-flex items-center rounded-pill border-2 font-bold whitespace-nowrap select-none [transition-property:background-color,border-color,color,transform] active:scale-[.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
         size === "sm" ? "min-h-[36px] px-3 text-sm" : "min-h-[44px] px-4 text-base",
         on ? (color ? "text-white" : "bg-primary text-primary-fg border-primary") : "border-border text-fg bg-surface", className)}>
       {dot && <span className="mr-2 inline-block h-3 w-3 rounded-[3px]" style={{ background: dot }} />}
@@ -106,7 +106,7 @@ export function Segmented<T extends string>({ value, onChange, options, label, s
 export function Option({ on, onClick, title, note, radio = true }: { on: boolean; onClick: () => void; title: ReactNode; note?: ReactNode; radio?: boolean }) {
   return (
     <button type="button" role={radio ? "radio" : "checkbox"} aria-checked={on} onClick={onClick}
-      className={cx("flex w-full items-start gap-3 rounded-md border-2 bg-surface px-4 py-3.5 text-left min-h-[56px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary", on ? "border-primary bg-today" : "border-border")}>
+      className={cx("flex w-full items-start gap-3 rounded-md border-2 bg-surface px-4 py-3.5 text-left min-h-[56px] [transition-property:background-color,border-color,transform] active:scale-[.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary", on ? "border-primary bg-today" : "border-border")}>
       <span className={cx("mt-0.5 h-[22px] w-[22px] flex-none border-2 border-primary bg-surface", radio ? "rounded-full" : "rounded-[6px]", on && (radio ? "border-[7px]" : "bg-primary"))} />
       <span className="text-base leading-snug"><b>{title}</b>{note && <div className="mt-0.5 text-sm text-muted">{note}</div>}</span>
     </button>
@@ -157,7 +157,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-24 z-[100] flex flex-col items-center gap-2 px-4 md:bottom-8">
         {list.map((t) => (
-          <div key={t.id} role={t.kind === "err" ? "alert" : "status"} className={cx("pointer-events-auto flex max-w-md items-center gap-3 rounded-md px-4 py-3 text-base font-bold shadow-lg",
+          <div key={t.id} role={t.kind === "err" ? "alert" : "status"} className={cx("anim-in pointer-events-auto flex max-w-md items-center gap-3 rounded-md px-4 py-3 text-base font-bold shadow-lg",
             t.kind === "ok" && "bg-primary text-primary-fg", t.kind === "err" && "bg-danger text-white", t.kind === "info" && "border-2 border-border bg-surface text-fg")}>
             <Icon name={t.kind === "ok" ? "check" : t.kind === "err" ? "alert" : "info"} size={22} />
             <span className="flex-1">{t.text}</span>

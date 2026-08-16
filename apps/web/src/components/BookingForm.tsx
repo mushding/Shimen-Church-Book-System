@@ -52,7 +52,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
   return (
     <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); onSubmit(); }} noValidate>
       {conflicts && conflicts.length > 0 && (
-        <div role="alert" className="flex gap-3 rounded-md border-2 border-danger bg-surface px-4 py-3 text-base leading-relaxed">
+        <div role="alert" className="anim-in flex gap-3 rounded-md border-2 border-danger bg-surface px-4 py-3 text-base leading-relaxed">
           <Icon name="alert" size={24} className="mt-0.5 shrink-0 text-danger" />
           <div>
             <b className="text-danger">這個時段「{roomName(conflicts[0].roomId)}」已經有人登記了</b>
@@ -63,7 +63,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         </div>
       )}
       <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練、姊妹會" /></Field>
-      {stage >= 1 && <div ref={stage === 1 ? lastRef : undefined} className="flex flex-col gap-1.5">
+      {stage >= 1 && <div ref={stage === 1 ? lastRef : undefined} className="anim-in flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">場地<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
         <div role="radiogroup" aria-label="場地" className="flex flex-col divide-y divide-border/70">
           {groupByZone(rooms.filter((r) => r.active || r.id === value.roomId)).map(([zone, list]) => (
@@ -79,7 +79,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           ))}
         </div>
       </div>}
-      {stage >= 2 && <div ref={stage === 2 ? lastRef : undefined} className="flex flex-col gap-1.5">
+      {stage >= 2 && <div ref={stage === 2 ? lastRef : undefined} className="anim-in flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">類別<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
         <div role="radiogroup" aria-label="類別" className="flex flex-wrap gap-2">
           {categories.filter((c) => c.active || c.id === value.categoryId).map((c) => (
@@ -88,7 +88,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           ))}
         </div>
       </div>}
-      {stage >= 3 && <div ref={lastRef} className="flex flex-col gap-4">
+      {stage >= 3 && <div ref={lastRef} className="anim-in flex flex-col gap-4">
       <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">日期<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><DateField value={value.date} onChange={(v) => set("date", v)} label="選日期" /></div>
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-3">

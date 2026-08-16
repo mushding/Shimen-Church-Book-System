@@ -8,7 +8,26 @@ html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; }
 /* 大字模式（長者）：所有 rem 尺寸連動，含日曆格線 */
 html.big-text { font-size: 112.5%; }
 body { @apply bg-bg text-fg text-base leading-normal; }
-/* 減少動態：關掉 transition，尊重系統設定 */
+/* ---- motion ----
+   1) 主題切換：所有元素顏色/邊框/陰影都用同一條 transition（深淺色整頁一起漸變）
+   2) 進場：.anim-in（progressive 欄位、清單、toast、切換檢視）
+   3) dialog：手機由下滑入、桌機淡入放大；backdrop 淡入
+   transform 不放全域 transition（FullCalendar 拖曳會卡）；按鈕/chip 自己宣告 */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, filter, outline-color;
+  transition-duration: .22s;
+  transition-timing-function: cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-up { from { opacity: .6; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+.anim-in { animation: rise .28s cubic-bezier(.2, .8, .2, 1) both; }
+.anim-fade { animation: fade .25s ease-out both; }
+dialog[open] { animation: sheet-up .3s cubic-bezier(.2, .8, .2, 1); }
+@media (min-width: 768px) { dialog[open] { animation: pop .22s cubic-bezier(.2, .8, .2, 1); } }
+dialog[open]::backdrop { animation: fade .25s ease-out; }
+/* 減少動態：關掉 transition/animation，尊重系統設定 */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
 /* 焦點環一律可見（鍵盤操作） */
 :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
