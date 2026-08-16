@@ -1,0 +1,32 @@
+<!-- @dsCard group="Components" name="Chips & segmented" subtitle="room chips (multi-select) · category chips · segmented view switch · badges" viewport="640x320" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — Chips</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">場地 chips（多選疊看；選中 = 場地色實心）</div>
+<div class="rowx"><span class="chip room-5">副堂</span><span class="chip room-6">正堂</span><span class="chip room-7">活動中心大</span><span class="chip chip-off">地下室大</span><span class="chip chip-off">兒童室</span><span class="chip chip-off">圖書室</span></div>
+<div class="demo-head">類別 chips</div>
+<div class="rowx"><span class="chip chip-cat" style="border-color:var(--primary)"><span class="catdot cat-youth"></span>青少契</span><span class="chip chip-cat"><span class="catdot cat-church"></span>教會</span><span class="chip chip-cat"><span class="catdot cat-group"></span>小組</span><span class="chip chip-cat"><span class="catdot cat-personal"></span>個人</span></div>
+<div class="demo-head">Segmented · Badge · Toggle</div>
+<div class="rowx"><span class="seg"><span class="segi">日</span><span class="segi on">三日</span><span class="segi">週</span><span class="segi">月</span></span><span class="badge">管理</span><span class="badge badge-role">staff</span><span class="tog on"></span><span class="tog"></span></div>
+
+</main>
+</body>
+</html>

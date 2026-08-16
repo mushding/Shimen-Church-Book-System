@@ -1,0 +1,31 @@
+<!-- @dsCard group="Components" name="Buttons" subtitle="primary / ghost / danger · sm · icon · disabled" viewport="640x300" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 按鈕</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">Buttons（min-height 44）</div>
+<div class="rowx"><button class="btn btn-primary">儲存登記</button><button class="btn btn-ghost">取消</button><button class="btn btn-danger">刪除</button><button class="btn btn-danger-solid">確定刪除</button><button class="btn btn-primary" disabled>停用</button></div>
+<div class="demo-head">Small · Icon · FAB</div>
+<div class="rowx"><button class="btn btn-primary btn-sm">修改</button><button class="btn btn-ghost btn-sm">今天</button><button class="btn-icon">‹</button><button class="btn-icon">›</button><span class="fab" style="position:static">+</span></div>
+<p class="notex">主色只給一個主要動作；刪除用紅描邊，只有最終確認才實心紅。</p>
+
+</main>
+</body>
+</html>

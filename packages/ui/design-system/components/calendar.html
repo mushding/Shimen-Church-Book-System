@@ -1,0 +1,32 @@
+<!-- @dsCard group="Components" name="Calendar event & detail" subtitle="event block (room color + category bar + ↻) · popover · conflict" viewport="640x420" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 日曆元件</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">登記塊 Event block</div>
+<div class="rowx" style="align-items:flex-start"><div class="ev room-6" style="width:160px"><span class="ev-cat cat-church"></span><div class="ev-t">主日崇拜 ↻</div><div class="ev-m">09:00–11:00 · 正堂</div><div class="ev-m">教會</div></div><div class="ev room-1" style="width:160px"><span class="ev-cat cat-group"></span><div class="ev-t">小組聚會</div><div class="ev-m">19:30–21:00 · 地下室大</div><div class="ev-m">王小明</div></div><div class="ev room-9" style="width:120px;opacity:.55;border:2px dashed #fff"><div class="ev-t">拖曳中</div><div class="ev-m">14:00–15:30</div></div></div>
+<div class="demo-head">詳情 popover（桌機）/ sheet（手機）</div>
+<div class="card" style="padding:16px 18px;max-width:320px;box-shadow:0 16px 40px rgba(46,74,78,.25)"><div class="disp" style="font-size:18px;font-weight:700;color:var(--primary)">青少契劇會排練</div><div style="font-size:14px;margin-top:4px">8/18（二）19:00–21:00 · 每週二 ↻</div><div class="rowx" style="margin-top:10px"><span class="chip chip-sm room-5">副堂</span><span class="chip chip-sm chip-cat"><span class="catdot cat-youth"></span>青少契</span></div><div class="row" style="margin-top:12px;font-size:13px;color:var(--muted)"><span class="avatar" style="width:24px;height:24px"></span>王小明 · 8/1 建立</div><div class="rowx" style="margin-top:14px;flex-wrap:nowrap"><button class="btn btn-primary btn-sm" style="flex:1">修改</button><button class="btn btn-danger btn-sm">刪除</button></div></div>
+<div class="demo-head">衝突提示</div>
+<div class="warn" style="max-width:360px"><b style="color:var(--danger)">副堂 8/18 19:00–21:00 已有登記</b><br />青少契劇會排練 · 王小明<br /><span class="note">請改時間或場地。幹事可勾選「強制建立」。</span></div>
+
+</main>
+</body>
+</html>

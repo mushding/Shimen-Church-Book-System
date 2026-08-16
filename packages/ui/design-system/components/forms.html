@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" name="Forms" subtitle="input · error · field label · option cards (radio/check)" viewport="640x420" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 表單</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="stack">
+<div class="field"><span class="label">登記目的</span><input class="input" value="青少契劇會排練" /></div>
+<div class="rowx" style="gap:8px"><div class="field" style="flex:1"><span class="label">開始</span><input class="input input-err" value="19:00" /></div><div class="field" style="flex:1"><span class="label">結束</span><input class="input input-err" value="21:00" /></div></div>
+<div class="opt on"><span class="radio on"></span><div style="font-size:14px"><b>只有這一次</b><div class="note">8/18 這筆改時間，其餘不動</div></div></div>
+<div class="opt"><span class="radio"></span><div style="font-size:14px"><b>全部</b><div class="note">整個系列一起改</div></div></div>
+<div class="opt"><span class="check"></span><div style="font-size:13px;line-height:1.5"><b>強制建立（幹事）</b><br /><span class="note">忽略衝突，兩筆登記並存。</span></div></div>
+</div>
+
+</main>
+</body>
+</html>

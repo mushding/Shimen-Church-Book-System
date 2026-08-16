@@ -1,0 +1,32 @@
+<!-- @dsCard group="Components" name="Navigation" subtitle="desktop topbar · mobile appbar · admin side nav" viewport="720x360" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 導覽</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">桌機 topbar</div>
+<div class="topbar" style="border:1.5px solid var(--border);border-radius:var(--r-md)"><div class="row" style="gap:10px"><span style="width:28px;height:28px;border-radius:8px;background:var(--primary)"></span><span class="disp" style="font-size:18px;font-weight:700;color:var(--primary)">石門教會 場地登記</span></div><div class="row" style="margin-left:16px;gap:8px"><button class="btn-icon">‹</button><button class="btn-icon">›</button><button class="btn btn-ghost btn-sm">今天</button></div><span class="seg" style="margin-left:auto"><span class="segi">日</span><span class="segi on">週</span><span class="segi">月</span></span><span class="badge badge-role">staff</span><span class="avatar"></span></div>
+<div class="demo-head">手機 appbar + chips row</div>
+<div style="width:340px;border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:var(--bg)"><div class="appbar"><div class="disp" style="font-size:18px;font-weight:700;color:var(--primary)">8月 16–18</div><span class="avatar"></span></div><div class="chipsrow"><span class="chip chip-sm room-5">副堂</span><span class="chip chip-sm room-6">正堂</span><span class="chip chip-sm chip-off">活動中心大</span><span class="chip chip-sm chip-off">地下室大</span></div></div>
+<div class="demo-head">Admin side nav</div>
+<div class="side" style="width:200px;border:1.5px solid var(--border);border-radius:var(--r-md)"><div class="navi on">場地</div><div class="navi">類別</div><div class="navi">使用者與角色</div><div class="navi">系統設定</div></div>
+
+</main>
+</body>
+</html>

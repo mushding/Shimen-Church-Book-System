@@ -1,0 +1,31 @@
+<!-- @dsCard group="Components" name="Feedback" subtitle="toast ok/err/info · dialog · empty · error" viewport="640x420" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 回饋</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">Toast（底部置中，3 秒；錯誤手動關）</div>
+<div class="stack" style="justify-items:start"><span class="toast toast-ok">✓ 已儲存「青少契劇會排練」</span><span class="toast toast-ok">✓ 已刪除 · <u>復原</u></span><span class="toast toast-err">✕ 儲存失敗：副堂 19:00 已被登記</span><span class="toast toast-info">已自動登入 · 王小明</span></div>
+<div class="demo-head">Dialog</div>
+<div class="card" style="padding:18px;max-width:320px"><div class="disp" style="font-size:18px;font-weight:700;color:var(--danger)">刪除這筆登記？</div><div class="note" style="margin-top:6px">青少契劇會排練 · 8/18 19:00–21:00 · 副堂<br />刪除後無法復原。</div><div class="rowx" style="margin-top:16px;flex-wrap:nowrap"><button class="btn btn-ghost btn-sm" style="flex:1">取消</button><button class="btn btn-danger-solid btn-sm" style="flex:1">刪除</button></div></div>
+<p class="notex">文案短、直說、給下一步。空狀態：「這三天沒有登記 · 按 ＋ 開始登記」。錯誤：「載入失敗 · 資料沒有遺失，稍後再試 · 重試」。</p>
+
+</main>
+</body>
+</html>

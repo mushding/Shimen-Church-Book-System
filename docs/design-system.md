@@ -1,5 +1,11 @@
 # Design System v0.1（Phase 1，2026-08-16）
 
+## Claude Design **Design System**（正式）
+- 名稱「石門教會 Shimen Church」，id `c3a36bb4-32f6-45e6-b714-2a62a6a26a5b`（type DESIGN_SYSTEM）。
+- 來源 bundle：`packages/ui/design-system/`（readme.md 指南、styles.css = tokens + 元件層、foundations/、components/、templates/booking-mobile、theme.json、thumbnail.html）。
+- 更新流程：改 `packages/ui/src/tokens.css` → 重生 `design-system/styles.css`（前半段是 tokens 複本）→ 用 `DesignSync`（或 `/design-sync`）推同一 projectId。
+- 新 mockup 一律綁此 DS：`create_project(design_system_id=...)` 或 `get_claude_design_prompt(design_system_id=...)`。
+
 ## 真相在哪
 - **探索/說明頁**：Claude Design 專案「石門教會 場地登記 — 設計系統」
   https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=%E7%9F%B3%E9%96%80%E6%95%99%E6%9C%83%E8%A8%AD%E8%A8%88%E7%B3%BB%E7%B5%B1.dc.html

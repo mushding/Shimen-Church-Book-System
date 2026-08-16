@@ -1,0 +1,35 @@
+<!-- @dsCard group="Foundations" name="Color" subtitle="Base 5 + semantic + 10 room hues + 6 category" viewport="720x760" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 色彩</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.g10{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}.swx{height:64px;border-radius:var(--r-md);border:1.5px solid rgba(46,74,78,.1)}.swn{font-weight:700;font-size:12px;margin-top:6px}.swh{font-family:ui-monospace,monospace;font-size:11px;color:var(--muted)}.swu{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">石門教會 base</div>
+<div class="g5"><div><div class="swx" style="background:var(--smsk-teal)"></div><div class="swn">招牌藍綠 Teal</div><div class="swh">--smsk-teal</div><div class="swu">主按鈕、標題、選中</div></div><div><div class="swx" style="background:var(--smsk-cream)"></div><div class="swn">奶油底 Cream</div><div class="swh">--smsk-cream</div><div class="swu">頁面背景</div></div><div><div class="swx" style="background:var(--smsk-paper)"></div><div class="swn">紙面 Paper</div><div class="swh">--smsk-paper</div><div class="swu">卡片、表單、日曆格</div></div><div><div class="swx" style="background:var(--smsk-ink)"></div><div class="swn">墨色 Ink</div><div class="swh">--smsk-ink</div><div class="swu">內文</div></div><div><div class="swx" style="background:var(--smsk-red)"></div><div class="swn">警示紅</div><div class="swh">--smsk-red</div><div class="swu">刪除/衝突/錯誤，不做底色</div></div></div>
+<div class="demo-head">Semantic（.dark 只覆寫這層）</div>
+<div class="g5"><div><div class="swx" style="background:var(--bg)"></div><div class="swn">bg</div><div class="swh">--bg</div><div class="swu"></div></div><div><div class="swx" style="background:var(--surface)"></div><div class="swn">surface</div><div class="swh">--surface</div><div class="swu"></div></div><div><div class="swx" style="background:var(--primary)"></div><div class="swn">primary</div><div class="swh">--primary</div><div class="swu"></div></div><div><div class="swx" style="background:var(--border)"></div><div class="swn">border</div><div class="swh">--border</div><div class="swu"></div></div><div><div class="swx" style="background:var(--today)"></div><div class="swn">today</div><div class="swh">--today</div><div class="swu">今天欄底色</div></div></div>
+<div class="demo-head">場地 room-1…10（同 L/C 家族，只變 hue；亮暗不變）</div>
+<div class="g10"><div><div class="swx room-1" style="height:44px"></div><div class="swu">地下室大</div></div><div><div class="swx room-2" style="height:44px"></div><div class="swu">地下室小</div></div><div><div class="swx room-3" style="height:44px"></div><div class="swu">協談室</div></div><div><div class="swx room-4" style="height:44px"></div><div class="swu">兒童室</div></div><div><div class="swx room-5" style="height:44px"></div><div class="swu">副堂</div></div><div><div class="swx room-6" style="height:44px"></div><div class="swu">正堂</div></div><div><div class="swx room-7" style="height:44px"></div><div class="swu">活動中心大</div></div><div><div class="swx room-8" style="height:44px"></div><div class="swu">活動中心小</div></div><div><div class="swx room-9" style="height:44px"></div><div class="swu">圖書室</div></div><div><div class="swx room-10" style="height:44px"></div><div class="swu">禱告室</div></div></div>
+<div class="demo-head">類別 cat-*（4px 細條 / 小方點，不做底色）</div>
+<div class="rowx"><span class="chip chip-cat"><span class="catdot cat-church"></span>教會</span><span class="chip chip-cat"><span class="catdot cat-group"></span>小組</span><span class="chip chip-cat"><span class="catdot cat-youth"></span>青少契</span><span class="chip chip-cat"><span class="catdot cat-young"></span>社青</span><span class="chip chip-cat"><span class="catdot cat-kids"></span>兒童</span><span class="chip chip-cat"><span class="catdot cat-personal"></span>個人</span></div>
+<p class="notex">顏色的主角是場地；藍綠只出現在標題、主按鈕、選中態、今天欄。紅只做刪除與衝突。</p>
+
+</main>
+</body>
+</html>

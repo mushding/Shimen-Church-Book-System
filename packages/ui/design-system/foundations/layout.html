@@ -1,0 +1,31 @@
+<!-- @dsCard group="Foundations" name="Layout & radius" subtitle="8/12/16 radius · pill buttons · 44px targets · no gradient/glass" viewport="720x360" -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>石門教會 — 版面</title>
+<link rel="stylesheet" href="../styles.css" />
+<style>
+/* Demo scaffolding only — everything visual comes from styles.css. */
+.demo { max-width: 720px; margin: 0 auto; padding: 24px 20px 32px; }
+.demo-head { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .55; margin: 20px 0 10px; }
+.demo-head:first-child { margin-top: 0; }
+.rowx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stack { display: grid; gap: 12px; }
+.notex { font-size: 12px; opacity: .6; max-width: 60ch; }
+.bx{background:var(--surface);border:1.5px solid var(--border);padding:12px 14px;font-size:12px}
+</style>
+</head>
+<body>
+<main class="demo">
+
+<div class="demo-head">圓角 --r-sm 8 / --r-md 12 / --r-lg 16 / --r-pill</div>
+<div class="rowx"><div class="bx" style="border-radius:var(--r-sm)">sm · 登記塊</div><div class="bx" style="border-radius:var(--r-md)">md · input / toast</div><div class="bx" style="border-radius:var(--r-lg)">lg · card / sheet</div><div class="bx" style="border-radius:var(--r-pill)">pill · 按鈕 / chip</div></div>
+<div class="demo-head">邊線與陰影</div>
+<div class="rowx"><div class="card" style="padding:14px;width:200px">card：1.5px border，無陰影</div><div class="card" style="padding:14px;width:200px;box-shadow:0 16px 40px rgba(46,74,78,.25)">popover / sheet：單層柔影</div></div>
+<p class="notex">可點目標最小 44px；不用漸層、玻璃擬態、emoji。手機 chips 橫向捲動；桌機 wrap。</p>
+
+</main>
+</body>
+</html>

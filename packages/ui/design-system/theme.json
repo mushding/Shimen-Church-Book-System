@@ -1,0 +1,24 @@
+{
+  "name": "石門教會 Shimen Church",
+  "palette": {
+    "scheme": "mono",
+    "band": "light",
+    "bg": "oklch(0.96 0.03 90)",
+    "surface": "oklch(0.99 0.015 95)",
+    "text": "oklch(0.38 0.03 205)",
+    "accent": "oklch(0.42 0.06 205)",
+    "danger": "oklch(0.52 0.15 25)",
+    "rooms": ["oklch(0.50 0.09 225)","oklch(0.58 0.09 205)","oklch(0.55 0.09 265)","oklch(0.65 0.08 185)","oklch(0.55 0.13 25)","oklch(0.70 0.12 80)","oklch(0.52 0.11 150)","oklch(0.65 0.11 125)","oklch(0.62 0.12 350)","oklch(0.50 0.01 205)"]
+  },
+  "fonts": {
+    "heading": { "family": "Huninn", "class": "rounded", "weights": [400] },
+    "body": { "family": "Noto Sans TC", "class": "sans", "weights": [400, 500, 700] }
+  },
+  "density": 1,
+  "radius": { "sm": 8, "md": 12, "lg": 16, "pill": 999 },
+  "layoutStyle": "cards",
+  "dividers": "soft",
+  "buttonShape": "pill",
+  "minTarget": 44,
+  "darkMode": "class .dark (semantic layer only)"
+}
