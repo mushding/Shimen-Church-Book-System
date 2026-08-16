@@ -1,0 +1,9 @@
+{
+  "name": "shimen-church-book-system-v2",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev"
+  }
+}
