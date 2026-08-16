@@ -31,8 +31,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (b: boolean) => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)}
-      className={cx("relative inline-block h-[26px] w-11 rounded-full transition-colors", on ? "bg-primary" : "bg-border")}>
-      <span className={cx("absolute top-[3px] h-5 w-5 rounded-full bg-white transition-all", on ? "left-[21px]" : "left-[3px]")} />
+      className={cx("relative box-border block h-[26px] w-11 shrink-0 rounded-full p-[3px] align-middle outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/50",
+        on ? "bg-primary" : "bg-border")}>
+      <span className={cx("block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out", on ? "translate-x-[18px]" : "translate-x-0")} />
     </button>
   );
 }

@@ -6,25 +6,31 @@ export type Role = (typeof ROLES)[number];
 export const roleSchema = z.enum(ROLES);
 
 // ---- rooms / categories (admin-maintained) ----
-export const roomInput = z.object({
+// NOTE zod 4: `.default()` still fills missing keys after `.partial()` → patch schemas must be built
+// from default-free field sets, otherwise a PATCH {active:false} would also reset sort/… to defaults.
+const roomFields = z.object({
   name: z.string().trim().min(1).max(40),
   colorToken: z.string().regex(/^room-[a-z0-9-]+$/), // maps to `bg-room-N` in @smsk/ui
-  sort: z.number().int().default(0),
-  active: z.boolean().default(true),
-  allowOverlap: z.boolean().default(false), // e.g. 教會室外 — never conflicts
+  sort: z.number().int(),
+  active: z.boolean(),
+  allowOverlap: z.boolean(), // e.g. 教會室外 — never conflicts
 });
+export const roomInput = roomFields.extend({ sort: roomFields.shape.sort.default(0), active: roomFields.shape.active.default(true), allowOverlap: roomFields.shape.allowOverlap.default(false) });
+export const roomPatch = roomFields.partial();
 export type RoomInput = z.infer<typeof roomInput>;
-export const room = roomInput.extend({ id: z.number().int() });
+export const room = roomFields.extend({ id: z.number().int() });
 export type Room = z.infer<typeof room>;
 
-export const categoryInput = z.object({
+const categoryFields = z.object({
   name: z.string().trim().min(1).max(40),
-  colorToken: z.string().regex(/^cat-[a-z0-9-]+$/), // bg-cat-church …,
-  sort: z.number().int().default(0),
-  active: z.boolean().default(true),
+  colorToken: z.string().regex(/^cat-[a-z0-9-]+$/), // bg-cat-church …
+  sort: z.number().int(),
+  active: z.boolean(),
 });
+export const categoryInput = categoryFields.extend({ sort: categoryFields.shape.sort.default(0), active: categoryFields.shape.active.default(true) });
+export const categoryPatch = categoryFields.partial();
 export type CategoryInput = z.infer<typeof categoryInput>;
-export const category = categoryInput.extend({ id: z.number().int() });
+export const category = categoryFields.extend({ id: z.number().int() });
 export type Category = z.infer<typeof category>;
 
 // ---- bookings ----
@@ -41,14 +47,14 @@ const bookingFields = z.object({
   roomId: z.number().int(),
   categoryId: z.number().int(),
   title: z.string().trim().min(1).max(60),
-  note: z.string().max(2000).default(""),
+  note: z.string().max(2000),
   start: isoDate,
   end: isoDate,
-  rrule: rruleBody.nullable().default(null),
+  rrule: rruleBody.nullable(),
 });
 const endAfterStart = { message: "end must be after start", path: ["end"] };
 export const bookingInput = bookingFields
-  .extend({ force: z.boolean().default(false) }) // staff/admin: ignore conflicts
+  .extend({ note: bookingFields.shape.note.default(""), rrule: bookingFields.shape.rrule.default(null), force: z.boolean().default(false) }) // force: staff/admin ignore conflicts
   .refine((b) => new Date(b.end) > new Date(b.start), endAfterStart);
 export type BookingInput = z.infer<typeof bookingInput>;
 

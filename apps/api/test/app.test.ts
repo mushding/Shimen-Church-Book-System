@@ -60,6 +60,10 @@ describe("auth & roles", () => {
     const mine = await (await req(RANGE, {}, "m1:member")).json();
     expect(mine[0].user).toEqual({ name: "name-m1", image: null }); expect(mine[0].mine).toBe(true);
     const patch = { scope: "all", patch: { title: "x" } };
+    // partial booking patch keeps note/rrule (zod4 default trap)
+    const weekly = await (await req("/api/bookings", { method: "POST", body: JSON.stringify({ ...body, start: iso("2026-11-01T10:00:00+08:00"), end: iso("2026-11-01T11:00:00+08:00"), note: "keep", rrule: "FREQ=WEEKLY;COUNT=3" }) }, "m1:member")).json();
+    const renamed = await (await req(`/api/bookings/${weekly.id}`, { method: "PATCH", body: JSON.stringify(patch) }, "m1:member")).json();
+    expect(renamed).toMatchObject({ title: "x", note: "keep", rrule: "FREQ=WEEKLY;COUNT=3" });
     expect((await req(`/api/bookings/${id}`, { method: "PATCH", body: JSON.stringify(patch) }, "m2:member")).status).toBe(403);
     expect((await req(`/api/bookings/${id}`, { method: "PATCH", body: JSON.stringify(patch) }, "s1:staff")).status).toBe(200);
     expect((await req(`/api/bookings/${id}`, { method: "DELETE" }, "m2:member")).status).toBe(403);
@@ -81,7 +85,9 @@ describe("auth & roles", () => {
     const r = await req("/api/admin/rooms", { method: "POST", body: JSON.stringify(room) }, "a1:admin");
     expect(r.status).toBe(201);
     const { id } = await r.json();
-    expect((await (await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ active: false }) }, "a1:admin")).json()).active).toBe(false);
+    await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ sort: 42, allowOverlap: true }) }, "a1:admin");
+    const patched = await (await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ active: false }) }, "a1:admin")).json();
+    expect(patched).toMatchObject({ active: false, sort: 42, allowOverlap: true }); // partial patch must not reset other fields (zod4 default trap)
     expect((await (await req("/api/admin/users/m2", { method: "PATCH", body: JSON.stringify({ role: "staff" }) }, "a1:admin")).json()).role).toBe("staff");
     const users = await (await req("/api/admin/users", {}, "a1:admin")).json();
     expect(users.find((u: any) => u.id === "m2")).not.toHaveProperty("email");
