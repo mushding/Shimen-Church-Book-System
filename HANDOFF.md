@@ -14,7 +14,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
   - `packages/ui`：`tokens.css`（oklch，兩層：教會 base + 登記語意層 + room/cat 色票，`.dark`）+ `theme.css`（Tailwind v4 `@theme inline`）。
   - `apps/web` POC 已吃 tokens；`apps/api` POC（Hono + better-auth LINE preset + Drizzle + pglite）跑得起來。
   - 全部在 `docs/design-system.md` 有 id/URL/載入方式。
-- **Phase 2 完成（backend v2，2026-08-16）**：`packages/shared` zod contract；`apps/api` schema/recur/conflicts/bookings(scopes)/app(Hono RPC)/legacy migration；22 vitest 全過；`pnpm --filter api test`。契約與語意見 `docs/api.md`。**未做**：真 LINE 登入驗收（等使用者 secret）、真 dump 跑 migration（等使用者 dump）。
+- **Phase 2 完成（backend v2，2026-08-16）**：`packages/shared` zod contract；`apps/api` schema/recur/conflicts/bookings(scopes)/app(Hono RPC)/legacy migration；22 vitest 全過；`pnpm --filter api test`。契約與語意見 `docs/api.md`。migration script 已測但**不會用到**（舊資料遺失，全新起步）。
 - **Phase 3 完成（frontend v2，2026-08-16）**：`apps/web` 正式版（Router/Query/RPC/FullCalendar/表單/scope/衝突/admin/暗色/手機三日）；Playwright happy path `pnpm e2e` 綠；api 25 vitest 綠。真 LINE 登入 V1/V2 已驗（accountId = 舊 userId）。
 - Repo：`~/Desktop/Github/personal/shimen-church-book-system-v2` → GitHub **`mushding/Shimen-Church-Book-System`**（public；remote `git@github.com-personal:`，個人 key 已註冊）。舊 GitLab repo `shimen-church-book-system` 只 push 了 docs（pre-plan/decisions/survey 01–03）+ `.env.example`。
 
@@ -45,15 +45,15 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 2. ~~.env / callback / V1 V2~~ 完成。剩 V3 cookie 旗標、V4 滑動續期、V5 logout、V6 role（`pnpm --filter api set-role U… admin` 後 `/api/me` 看 role）、V10 LINE in-app browser。
 3. ~~GitHub remote~~ 已推 `mushding/Shimen-Church-Book-System`（目前 **public**；要 private 自己在 GitHub 設定改）。
 4. 看 DS / mockups 一輪，拍板色相/字體；要改就說，我改 `tokens.css` 重推。
-5. 拿一份 prod MySQL dump 到本地（migration 用）；GitLab backup repo 目前私有。
+5. ~~prod dump / migration~~ **取消**：舊資料遺失，v2 全新 DB 起步（見 decisions「不遷移歷史資料」）。
 
 ## Next Steps（Phase 4：infra）+ 打磨
 Phase 3 前端已落地。接下來：
 1. **使用者先過一輪 UI**（`pnpm dev:api` + `pnpm dev:web`，或 `DEV_LOGIN=1 pnpm dev:api` 後 `curl -X POST localhost:5173/api/dev/login -d '{"name":"x","role":"admin"}'` 拿 cookie）：手機真機觸控拖曳、色相、密度。回饋 → 改 `apps/web/src/*` / `packages/ui/tokens.css`。
 2. Phase 4 infra：`infra/`（k3s manifests：api Deployment、web 靜態 nginx 或由 Hono serve dist、Postgres StatefulSet + pg_dump CronJob → GCS、Traefik + cert-manager）、Dockerfile（api / web）、GitHub Actions（typecheck + vitest + e2e + build image → GHCR）、Flux。成本紀律 `docs/survey/03` §10。**要先 `gh repo create`（等使用者拍板 #3）**。
-3. Phase 5：真 dump 彩排 `migrate:legacy` ≥2 次、staging 驗、DNS 切換、舊 DO 保留一週。
+3. Phase 5：staging 驗 → LINE console 加 prod callback → DNS 切換 → 第一個 admin 用 `set-role` → 舊 DO 保留一週。（無資料遷移。）
 4. 打磨（可後）：code-split（bundle 650KB）、eventContent 顯示多筆 conflict、admin 場地拖曳排序、i18n 時間格式一致。
-5. Phase 2 尾巴（等使用者）：V3/V4/V5/V10；真 dump 跑 `pnpm --filter api migrate:legacy dump.sql` 看警告；本機 PG（`DATABASE_URL`）或續用 pglite。
+5. Phase 2 尾巴（等使用者）：V3/V4/V5/V10；本機 PG（`DATABASE_URL`）或續用 pglite。
 
 ## 指令備忘
 ```sh

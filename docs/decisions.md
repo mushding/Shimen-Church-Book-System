@@ -77,3 +77,8 @@
 - 決定：**不裝 shadcn/radix**（ponytail）：原生 `<dialog>` + tokens 已覆蓋 sheet/popover/focus trap；`apps/web/src/ui.tsx` 幾個小 primitive。要 a11y 更深再換。
 - 決定：dev/e2e 登入走 `DEV_LOGIN=1` + `/api/dev/login`（better-auth email/password 僅 dev 開）；Playwright happy path `pnpm e2e`（自起 api/web）。
 - 已知：bundle 650KB（router+query+rrule+FullCalendar）；要瘦再 code-split。時間輸入用原生 `<input type=date/time>`。
+
+## 變更（2026-08-16）— 不遷移歷史資料
+- 舊 prod 資料已遺失（無 dump 可用）→ **v2 全新 DB 起步，不做遷移**。`apps/api/src/legacy.ts` + `migrate:legacy` 保留為備用（若日後找到 dump 可跑），不再是切換前置。
+- Phase 5 簡化：staging 驗 → 設定 LINE callback prod URL → DNS 切 `book.smsk.church` → 舊 DO 保留一週後關。無凍結、無彩排。
+- 使用者用同一 LINE channel 登入自然重建帳號；角色（staff/admin）由 admin 在後台重設（第一個 admin 用 `pnpm --filter api set-role <LINE userId> admin`）。
