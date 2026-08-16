@@ -33,6 +33,15 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/shimen-church-book-system:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: smoke test image (pglite, no DB needed)
+        run: |
+          IMG=ghcr.io/${{ github.repository_owner }}/shimen-church-book-system:${{ steps.tag.outputs.tag }}
+          docker run -d --name smoke -p 3000:3000 -e BETTER_AUTH_SECRET=ci-smoke-secret-32-chars-minimum!! -e BETTER_AUTH_URL=http://localhost:3000 -e PGLITE_DIR=memory:// $IMG
+          for i in $(seq 1 30); do curl -sf localhost:3000/healthz && break; sleep 2; done
+          curl -sf localhost:3000/healthz
+          curl -sf localhost:3000/ | grep -q '<div id="root">'
+          curl -sf localhost:3000/api/rooms | grep -q 正堂
+          docker logs smoke | tail -5; docker rm -f smoke
       - name: bump ${{ steps.tag.outputs.overlay }} overlay
         run: |
           git fetch origin main && git checkout main
