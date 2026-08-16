@@ -16,7 +16,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
   - 全部在 `docs/design-system.md` 有 id/URL/載入方式。
 - **Phase 2 完成（backend v2，2026-08-16）**：`packages/shared` zod contract；`apps/api` schema/recur/conflicts/bookings(scopes)/app(Hono RPC)/legacy migration；22 vitest 全過；`pnpm --filter api test`。契約與語意見 `docs/api.md`。**未做**：真 LINE 登入驗收（等使用者 secret）、真 dump 跑 migration（等使用者 dump）。
 - **Phase 3 完成（frontend v2，2026-08-16）**：`apps/web` 正式版（Router/Query/RPC/FullCalendar/表單/scope/衝突/admin/暗色/手機三日）；Playwright happy path `pnpm e2e` 綠；api 25 vitest 綠。真 LINE 登入 V1/V2 已驗（accountId = 舊 userId）。
-- Repo：`~/Desktop/Github/personal/shimen-church-book-system-v2` → GitHub **`mushding/Shimen-Church-Book-System`**（public，https remote；push 認證用 `gh auth token -u mushding`，因本機 SSH 預設是公司 EMU 帳號、個人 key 未註冊）。舊 GitLab repo `shimen-church-book-system` 只 push 了 docs（pre-plan/decisions/survey 01–03）+ `.env.example`。
+- Repo：`~/Desktop/Github/personal/shimen-church-book-system-v2` → GitHub **`mushding/Shimen-Church-Book-System`**（public；remote `git@github.com-personal:`，個人 key 已註冊）。舊 GitLab repo `shimen-church-book-system` 只 push 了 docs（pre-plan/decisions/survey 01–03）+ `.env.example`。
 
 ## What Worked
 - FullCalendar v7：純 `*Class` props + Tailwind，零 `.fc-*` override；rrule/exdate 正確；DnD callback 給 `event.id + oldEvent.start + delta`。以套件內 `chunks/*.d.ts` 為準（網路教學多 v6）。
@@ -43,7 +43,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 ## 使用者待辦（阻塞項，非我能做）
 1. 手機真機測 FullCalendar 觸控拖曳（`pnpm dev:web` 已 `--host`；POC #6）。
 2. ~~.env / callback / V1 V2~~ 完成。剩 V3 cookie 旗標、V4 滑動續期、V5 logout、V6 role（`pnpm --filter api set-role U… admin` 後 `/api/me` 看 role）、V10 LINE in-app browser。
-3. ~~GitHub remote~~ 已推 `mushding/Shimen-Church-Book-System`（目前 **public**；要 private 自己在 GitHub 設定改）。建議把 `~/.ssh/mushding_github_2026.pub` 加到 mushding 帳號，之後 `git@github.com-personal:` 就能直接推。
+3. ~~GitHub remote~~ 已推 `mushding/Shimen-Church-Book-System`（目前 **public**；要 private 自己在 GitHub 設定改）。
 4. 看 DS / mockups 一輪，拍板色相/字體；要改就說，我改 `tokens.css` 重推。
 5. 拿一份 prod MySQL dump 到本地（migration 用）；GitLab backup repo 目前私有。
 
