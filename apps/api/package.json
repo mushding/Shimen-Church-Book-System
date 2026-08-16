@@ -8,7 +8,8 @@
     "auth:schema": "npx @better-auth/cli generate --config src/auth.ts --output src/schema.auth.ts -y",
     "migrate:legacy": "tsx scripts/migrate-legacy.ts",
     "test": "vitest run",
-    "inspect": "tsx --env-file=.env scripts/inspect.ts"
+    "inspect": "tsx --env-file=.env scripts/inspect.ts",
+    "set-role": "tsx --env-file=.env scripts/set-role.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.3.0",

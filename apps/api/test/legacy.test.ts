@@ -26,7 +26,12 @@ describe("parseDump", () => {
 });
 
 describe("migrateLegacy", () => {
-  beforeAll(async () => { await migrate(); await seed(); });
+  beforeAll(async () => {
+    await migrate(); await seed();
+    // simulate: this person already logged into v2 before migration ran → random user.id + account row
+    await db.insert(user).values({ id: "RANDOMID", name: "彭啟恩", email: "u459767a6e915e5fc8749df6de1926adf@line.invalid" });
+    await db.insert(account).values({ id: "acc1", providerId: "line", accountId: "U459767a6e915e5fc8749df6de1926adf", userId: "RANDOMID", createdAt: new Date(), updatedAt: new Date() });
+  });
   it("maps users/accounts/rooms/series/exceptions; re-run is idempotent", async () => {
     const r1 = await migrateLegacy(db, sql, () => {});
     expect(r1).toMatchObject({ users: 2, bookings: 4, exceptions: 2 });
@@ -38,12 +43,13 @@ describe("migrateLegacy", () => {
     expect(await db.select().from(account)).toHaveLength(2);
     expect(await db.select().from(bookingException)).toHaveLength(2);
 
-    const u = (await db.select().from(user).where(eq(user.id, "U459767a6e915e5fc8749df6de1926adf")))[0];
-    expect(u.role).toBe("admin"); expect(u.email).toBe("U459767a6e915e5fc8749df6de1926adf@line.invalid");
+    const u = (await db.select().from(user).where(eq(user.id, "RANDOMID")))[0]; // reused existing v2 user
+    expect(u.role).toBe("admin"); expect(u.email).toBe("u459767a6e915e5fc8749df6de1926adf@line.invalid");
+    expect((await db.select().from(bookingSeries).where(eq(bookingSeries.legacyId, 1000)))[0].userId).toBe("RANDOMID");
     const other = (await db.select().from(user).where(eq(user.id, "Uaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")))[0];
     expect(other.role).toBe("member");
-    const acc = (await db.select().from(account).where(eq(account.userId, u.id)))[0];
-    expect(acc).toMatchObject({ providerId: "line", accountId: u.id });
+    const acc = (await db.select().from(account).where(eq(account.userId, other.id)))[0];
+    expect(acc).toMatchObject({ providerId: "line", accountId: other.id });
 
     const s = (await db.select().from(bookingSeries).where(eq(bookingSeries.legacyId, 1000)))[0];
     expect(s.rrule).toBe("FREQ=WEEKLY;BYDAY=FR;UNTIL=20231229T160000Z");

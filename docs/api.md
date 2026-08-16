@@ -25,4 +25,4 @@
 - 409 時顯示 `conflicts`，staff/admin 可重送 `force:true`。
 
 ## 舊資料遷移
-`pnpm --filter api migrate:legacy dump.sql`（`src/legacy.ts`）：解析 mysqldump → user（`email = {LINE sub}@line.invalid`）+ account（`providerId=line, accountId=sub`）→ series（`legacy_id` upsert，可重跑）→ exDate 轉 cancelled exception；未知 room/category 名自動建 inactive 列並警告；`flyyoungTeamName` 進 note。
+`pnpm --filter api migrate:legacy dump.sql`（`src/legacy.ts`）：解析 mysqldump → user（`email = {sub 小寫}@line.invalid`；若該 sub 已登入過 v2 則沿用既有 `user.id`）+ account（`providerId=line, accountId=sub`）→ series（`legacy_id` upsert，可重跑）→ exDate 轉 cancelled exception；未知 room/category 名自動建 inactive 列並警告；`flyyoungTeamName` 進 note。

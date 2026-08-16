@@ -63,14 +63,19 @@ export async function migrateLegacy(db: Db, sql: string, log = console.log) {
   const users = t.User ?? [], appts = t.Appointment ?? [];
   const warn: string[] = [];
 
-  // users + LINE account link (better-auth: account.providerId='line', accountId = LINE sub = old userId)
+  // users + LINE account link (better-auth: account.providerId='line', accountId = LINE sub = old userId).
+  // If the person already logged into v2 (account row exists), reuse that user.id; else user.id = sub.
+  const uid = new Map<string, string>(); // old userId → v2 user.id
+  const existing = new Map((await db.select().from(account).where(eq(account.providerId, "line"))).map((a) => [a.accountId, a.userId]));
   for (const u of users) {
-    const id = u.userId!;
+    const sub = u.userId!;
     const row = { name: u.name || "(未命名)", image: u.pictureUrl || null, role: ROLE[u.role ?? ""] ?? "member" };
-    await db.insert(user).values({ id, email: `${id}@line.invalid`, emailVerified: false, ...row, createdAt: u.createTime ? new Date(u.createTime) : new Date() })
+    const id = existing.get(sub) ?? sub;
+    uid.set(sub, id);
+    await db.insert(user).values({ id, email: `${sub.toLowerCase()}@line.invalid`, emailVerified: false, ...row, createdAt: u.createTime ? new Date(u.createTime) : new Date() })
       .onConflictDoUpdate({ target: user.id, set: row });
-    await db.insert(account).values({ id: `line:${id}`, accountId: id, providerId: "line", userId: id, createdAt: new Date(), updatedAt: new Date() })
-      .onConflictDoNothing();
+    if (!existing.has(sub))
+      await db.insert(account).values({ id: `line:${sub}`, accountId: sub, providerId: "line", userId: id, createdAt: new Date(), updatedAt: new Date() }).onConflictDoNothing();
   }
 
   // rooms/categories by name; unknown names → inactive rows so nothing is dropped
@@ -85,16 +90,16 @@ export async function migrateLegacy(db: Db, sql: string, log = console.log) {
     return r.id;
   };
 
-  const userIds = new Set(users.map((u) => u.userId));
   let n = 0, nex = 0;
   for (const a of appts) {
     const legacyId = Number(a.pkId);
-    if (!userIds.has(a.userId)) { warn.push(`appt ${legacyId}: unknown user ${a.userId}, skipped`); continue; }
+    const userId = uid.get(a.userId ?? "");
+    if (!userId) { warn.push(`appt ${legacyId}: unknown user ${a.userId}, skipped`); continue; }
     const dtstart = parseLegacyDate(a.startDate!), dtend = parseLegacyDate(a.endDate!);
     if (dtend <= dtstart) { warn.push(`appt ${legacyId}: end<=start, skipped`); continue; }
     const note = [a.note?.trim(), a.flyyoungTeamName ? `[雙語營組別] ${a.flyyoungTeamName}` : ""].filter(Boolean).join("\n");
     const row = {
-      userId: a.userId!, roomId: await ensure(roomId, a.roomName ?? "", "room"), categoryId: await ensure(catId, a.categoryName ?? "", "category"),
+      userId, roomId: await ensure(roomId, a.roomName ?? "", "room"), categoryId: await ensure(catId, a.categoryName ?? "", "category"),
       title: a.title || "(無標題)", note, dtstart, dtend, rrule: a.rRule?.trim() ? a.rRule.trim().replace(/^RRULE:/i, "") : null,
     };
     const [s] = await db.insert(bookingSeries).values({ ...row, legacyId, createdAt: a.createTime ? new Date(a.createTime) : dtstart })

@@ -19,7 +19,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 
 ## What Worked
 - FullCalendar v7：純 `*Class` props + Tailwind，零 `.fc-*` override；rrule/exdate 正確；DnD callback 給 `event.id + oldEvent.start + delta`。以套件內 `chunks/*.d.ts` 為準（網路教學多 v6）。
-- better-auth 1.6.x：`generic-oauth` 的 `line()` preset + spread 覆寫 `getUserInfo` 用 HS256 `jwtVerify`；callback `/api/auth/oauth2/callback/line`；`user.id` = 舊 LINE sub 可零改 FK。
+- better-auth 1.6.x：`generic-oauth` 的 `line()` preset + spread 覆寫 `getUserInfo` 用 HS256 `jwtVerify`；callback `/api/auth/oauth2/callback/line`；**真登入已驗（2026-08-16）**：`account.accountId` = 舊 `User.userId`（V1/V2 ✓），`user.id` 是 better-auth 隨機值——關聯靠 account 表；migration 對已登入者沿用既有 `user.id`。
 - Tailwind v4 dark：`@theme inline` 引用 `var(--x)`，`.dark` 才會生效；workspace 套件的 CSS 要在 app 端直接 `@import` 兩個檔（不會跟進巢狀 @import）。
 - Claude Design：`.dc.html` 用 `sc-for` + class 定位（不要 `style="{{ }}"`），共用 `ds.css`；DS bundle 格式照 Modernist（`readme.md` + `styles.css` + `@dsCard` 首行註解）。
 - Playwright headless 驗 render（Chrome extension 常沒回應）。
@@ -36,7 +36,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 
 ## 使用者待辦（阻塞項，非我能做）
 1. 手機真機測 FullCalendar 觸控拖曳（`pnpm dev:web` 已 `--host`；POC #6）。
-2. `apps/api/.env` 填新 LINE secret + `BETTER_AUTH_SECRET`；LINE console 加 callback `http://localhost:5173/api/auth/oauth2/callback/line`；跑真登入驗 V1–V6/V9/V10（`docs/survey/02` §7）；確認 `account.accountId == 舊 User.userId`。
+2. ~~.env / callback / V1 V2~~ 完成。剩 V3 cookie 旗標、V4 滑動續期、V5 logout、V6 role（`pnpm --filter api set-role U… admin` 後 `/api/me` 看 role）、V10 LINE in-app browser。
 3. 決定要不要我 `gh repo create`（private）建 GitHub remote。
 4. 看 DS / mockups 一輪，拍板色相/字體；要改就說，我改 `tokens.css` 重推。
 5. 拿一份 prod MySQL dump 到本地（migration 用）；GitLab backup repo 目前私有。
