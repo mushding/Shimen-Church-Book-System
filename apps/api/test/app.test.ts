@@ -88,6 +88,10 @@ describe("auth & roles", () => {
     await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ sort: 42, allowOverlap: true }) }, "a1:admin");
     const patched = await (await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ active: false }) }, "a1:admin")).json();
     expect(patched).toMatchObject({ active: false, sort: 42, allowOverlap: true }); // partial patch must not reset other fields (zod4 default trap)
+    // delete: free room → 204; room with bookings → 409; hex colour accepted
+    expect((await req(`/api/admin/rooms/${id}`, { method: "PATCH", body: JSON.stringify({ colorToken: "#2E5F66" }) }, "a1:admin")).status).toBe(200);
+    expect((await req(`/api/admin/rooms/${id}`, { method: "DELETE" }, "a1:admin")).status).toBe(204);
+    expect((await req(`/api/admin/rooms/1`, { method: "DELETE" }, "a1:admin")).status).toBe(409);
     expect((await (await req("/api/admin/users/m2", { method: "PATCH", body: JSON.stringify({ role: "staff" }) }, "a1:admin")).json()).role).toBe("staff");
     const users = await (await req("/api/admin/users", {}, "a1:admin")).json();
     expect(users.find((u: any) => u.id === "m2")).not.toHaveProperty("email");

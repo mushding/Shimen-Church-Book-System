@@ -22,13 +22,13 @@ export function Button({ variant = "primary", size = "md", className, ...p }: Bu
   );
 }
 
-/** Room/category/weekday chip. `color` = tailwind bg class when on. */
+/** Room/category/weekday chip. `color` = CSS colour (token via cssColor() or hex) used as fill when on; `dot` = CSS colour swatch. */
 export function Chip({ on, color, children, onClick, className, dot }: { on: boolean; color?: string; children: ReactNode; onClick?: () => void; className?: string; dot?: string }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={on}
+    <button type="button" onClick={onClick} aria-pressed={on} style={on && color ? { background: color } : undefined}
       className={cx("inline-flex items-center rounded-pill border-2 px-3 py-1 text-xs font-bold whitespace-nowrap min-h-[28px] select-none transition-colors",
-        on ? (color ? `${color} text-white border-transparent` : "bg-primary text-primary-fg border-primary") : "border-border text-muted bg-transparent", className)}>
-      {dot && <span className={cx("mr-2 inline-block h-2.5 w-2.5 rounded-[3px]", dot)} />}
+        on ? (color ? "text-white border-transparent" : "bg-primary text-primary-fg border-primary") : "border-border text-muted bg-transparent", className)}>
+      {dot && <span className="mr-2 inline-block h-2.5 w-2.5 rounded-[3px]" style={{ background: dot }} />}
       {children}
     </button>
   );
@@ -135,11 +135,24 @@ export const useIsMobile = () => {
   return m;
 };
 
-// Tailwind needs static class strings
-export const ROOM_BG: Record<string, string> = {
-  "room-1": "bg-room-1", "room-2": "bg-room-2", "room-3": "bg-room-3", "room-4": "bg-room-4", "room-5": "bg-room-5",
-  "room-6": "bg-room-6", "room-7": "bg-room-7", "room-8": "bg-room-8", "room-9": "bg-room-9", "room-10": "bg-room-10",
-};
-export const CAT_BG: Record<string, string> = { "cat-church": "bg-cat-church", "cat-group": "bg-cat-group", "cat-youth": "bg-cat-youth", "cat-young": "bg-cat-young", "cat-kids": "bg-cat-kids", "cat-personal": "bg-cat-personal" };
-export const roomBg = (t: string) => ROOM_BG[t] ?? "bg-room-10";
-export const catBg = (t: string) => CAT_BG[t] ?? "bg-cat-personal";
+// ---- colours: DS token (`room-N` / `cat-xxx` → CSS var) or admin-picked hex ----
+export const cssColor = (token: string) => (token.startsWith("#") ? token : `var(--${token})`);
+export const ROOM_TOKENS = Array.from({ length: 10 }, (_, i) => `room-${i + 1}`);
+export const CAT_TOKENS = ["cat-church", "cat-group", "cat-youth", "cat-young", "cat-kids", "cat-personal"];
+/** Resolve a DS token (oklch var) or hex to #rrggbb for <input type=color>. */
+export function toHex(token: string): string {
+  if (token.startsWith("#")) return token.toLowerCase();
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim();
+  const m = /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/.exec(raw);
+  if (!m) return raw.startsWith("#") ? raw : "#888888";
+  return oklchToHex(+m[1], +m[2], +m[3]);
+}
+// oklch → sRGB hex (Björn Ottosson's reference math; ~1e-3 accuracy is plenty for a picker seed)
+function oklchToHex(L: number, C: number, h: number): string {
+  const a = C * Math.cos((h * Math.PI) / 180), b = C * Math.sin((h * Math.PI) / 180);
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b, m_ = L - 0.1055613458 * a - 0.0638541728 * b, s_ = L - 0.0894841775 * a - 1.291485548 * b;
+  const l = l_ ** 3, m = m_ ** 3, sv = s_ ** 3;
+  const lin = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * sv, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * sv, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * sv];
+  const gam = (c: number) => { c = Math.min(1, Math.max(0, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
+  return "#" + lin.map((c) => Math.round(gam(c) * 255).toString(16).padStart(2, "0")).join("");
+}

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { BookingInput, Category, Conflict, Room } from "@smsk/shared";
-import { Button, Chip, Field, Input, catBg, cx, roomBg } from "../ui";
+import { Button, Chip, Field, Input, cssColor, cx } from "../ui";
 import { RepeatEditor } from "./RepeatEditor";
 import { describe, fromRRule, toRRule, type Repeat } from "../lib/recur";
 import { dateInput, fmtShort, fromInputs, timeInput } from "../lib/time";
@@ -47,7 +47,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         <span className="text-[13px] font-bold text-primary">場地</span>
         <div className="flex flex-wrap gap-1.5">
           {rooms.filter((r) => r.active || r.id === value.roomId).map((r) => (
-            <Chip key={r.id} on={value.roomId === r.id} color={roomBg(r.colorToken)} onClick={() => set("roomId", r.id)}
+            <Chip key={r.id} on={value.roomId === r.id} color={cssColor(r.colorToken)} onClick={() => set("roomId", r.id)}
               className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}{value.roomId === r.id ? " ✓" : ""}</Chip>
           ))}
         </div>
@@ -56,7 +56,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         <span className="text-[13px] font-bold text-primary">類別</span>
         <div className="flex flex-wrap gap-1.5">
           {categories.filter((c) => c.active || c.id === value.categoryId).map((c) => (
-            <Chip key={c.id} on={value.categoryId === c.id} dot={catBg(c.colorToken)} onClick={() => set("categoryId", c.id)}
+            <Chip key={c.id} on={value.categoryId === c.id} dot={cssColor(c.colorToken)} onClick={() => set("categoryId", c.id)}
               className={cx(value.categoryId === c.id && "!bg-transparent !text-fg !border-primary")}>{c.name}</Chip>
           ))}
         </div>

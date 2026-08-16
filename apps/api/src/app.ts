@@ -103,10 +103,22 @@ export const app = new Hono<Env>()
     c.json((await db.insert(room).values(c.req.valid("json")).returning())[0], 201))
   .patch("/api/admin/rooms/:id", requireRole("admin"), idParam, zValidator("json", roomPatch), async (c) =>
     c.json((await db.update(room).set(c.req.valid("json")).where(eq(room.id, c.req.valid("param").id)).returning())[0]))
+  .delete("/api/admin/rooms/:id", requireRole("admin"), idParam, async (c) => {
+    const { id } = c.req.valid("param");
+    if (await db.query.bookingSeries.findFirst({ where: eq(bookingSeries.roomId, id), columns: { id: true } })) return c.json({ error: "in_use" }, 409);
+    await db.delete(room).where(eq(room.id, id));
+    return c.body(null, 204);
+  })
   .post("/api/admin/categories", requireRole("admin"), zValidator("json", categoryInput), async (c) =>
     c.json((await db.insert(category).values(c.req.valid("json")).returning())[0], 201))
   .patch("/api/admin/categories/:id", requireRole("admin"), idParam, zValidator("json", categoryPatch), async (c) =>
     c.json((await db.update(category).set(c.req.valid("json")).where(eq(category.id, c.req.valid("param").id)).returning())[0]))
+  .delete("/api/admin/categories/:id", requireRole("admin"), idParam, async (c) => {
+    const { id } = c.req.valid("param");
+    if (await db.query.bookingSeries.findFirst({ where: eq(bookingSeries.categoryId, id), columns: { id: true } })) return c.json({ error: "in_use" }, 409);
+    await db.delete(category).where(eq(category.id, id));
+    return c.body(null, 204);
+  })
   .get("/api/admin/users", requireRole("admin"), async (c) =>
     c.json(await db.select({ id: user.id, name: user.name, image: user.image, role: user.role, createdAt: user.createdAt }).from(user)))
   .patch("/api/admin/users/:id", requireRole("admin"), zValidator("param", z.object({ id: z.string() })), zValidator("json", z.object({ role: roleSchema })), async (c) =>

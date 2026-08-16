@@ -7,7 +7,7 @@ import interactionPlugin from "@fullcalendar/react/interaction";
 import zhTw from "@fullcalendar/react/locales/zh-tw";
 import type { BookingInstance, EditScope } from "@smsk/shared";
 import { ConflictErr, isAdmin, isStaff, login, logout, useBookingMutations, useBookings, useCategories, useMe, useRooms } from "../api";
-import { Button, Chip, Modal, Segmented, catBg, cx, roomBg, useDark, useIsMobile, useLocal, useToast } from "../ui";
+import { Button, Chip, Modal, Segmented, cssColor, cx, useDark, useIsMobile, useLocal, useToast } from "../ui";
 import { BookingForm, initialForm, toInput, type FormValue } from "../components/BookingForm";
 import { ConfirmDelete, ScopeDialog } from "../components/Dialogs";
 import { addMinutes, fmtDate, fmtRange, fmtTime, roundTo } from "../lib/time";
@@ -52,7 +52,7 @@ export function CalendarPage() {
     () => (bookings.data ?? []).filter((b) => shown(b.roomId)).map((b) => ({
       id: b.id, title: b.title, start: b.start, end: b.end, editable: canEdit(b), extendedProps: { b },
     })),
-    [bookings.data, hidden, me],
+    [bookings.data, hidden, me, axis, rooms, categories],
   );
 
   // ---- open editor ----
@@ -153,7 +153,7 @@ export function CalendarPage() {
       <div className="flex items-center gap-2 px-3 pb-2 md:px-6">
         <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
           {activeRooms.map((r) => (
-            <Chip key={r.id} on={shown(r.id)} color={roomBg(r.colorToken)} onClick={() => setHidden((h) => (h.includes(r.id) ? h.filter((x) => x !== r.id) : [...h, r.id]))}>{r.name}</Chip>
+            <Chip key={r.id} on={shown(r.id)} color={cssColor(r.colorToken)} onClick={() => setHidden((h) => (h.includes(r.id) ? h.filter((x) => x !== r.id) : [...h, r.id]))}>{r.name}</Chip>
           ))}
         </div>
         <div className="ml-auto flex-none">
@@ -191,22 +191,21 @@ export function CalendarPage() {
           slotHeaderClass="pr-2 text-[11px] text-muted text-right"
           nowIndicatorLineClass="border-t-2 border-danger"
           nowIndicatorDotClass="bg-danger"
-          eventClass={(i) => {
-            const b = i.event.extendedProps.b as BookingInstance;
-            const bg = axis === "room" ? roomBg(roomOf(b.roomId)?.colorToken ?? "") : catBg(catOf(b.categoryId)?.colorToken ?? "");
-            return cx(bg, "group rounded-sm text-white shadow-sm ring-1 ring-black/10 overflow-hidden", (i.isDragging || i.isResizing) && "opacity-70", i.isMirror && "opacity-60");
-          }}
-          eventInnerClass="pl-2.5 pr-1.5 py-0.5 leading-tight relative"
+          eventClass={(i) => cx("group rounded-sm text-white shadow-sm ring-1 ring-black/10 overflow-hidden", (i.isDragging || i.isResizing) && "opacity-70", i.isMirror && "opacity-60")}
+          eventInnerClass="pl-2.5 pr-1.5 py-0.5 leading-tight relative isolate h-full"
           /* resize handles (top/bottom edge): 8px hit area, cursor hint, grip visible on hover */
           eventBeforeClass={(i) => cx("absolute inset-x-0 top-0 h-2 z-10", i.isStartResizable && "cursor-ns-resize")}
           eventAfterClass={(i) => cx("absolute inset-x-0 bottom-0 h-2 z-10", i.isEndResizable && "cursor-ns-resize after:absolute after:left-1/2 after:bottom-0.5 after:h-1 after:w-6 after:-translate-x-1/2 after:rounded-full after:bg-white/70 after:opacity-0 group-hover:after:opacity-100")}
           eventContent={(i) => {
             const b = i.event.extendedProps.b as BookingInstance | undefined;
-            if (!b) return <div className="text-[11px] px-1">{i.timeText}</div>;
-            const stripe = axis === "room" ? catBg(catOf(b.categoryId)?.colorToken ?? "") : roomBg(roomOf(b.roomId)?.colorToken ?? "");
+            if (!b) return <div className="text-[11px] px-1 bg-primary/60 h-full">{i.timeText}</div>;
+            const fill = cssColor((axis === "room" ? roomOf(b.roomId)?.colorToken : catOf(b.categoryId)?.colorToken) ?? "room-10");
+            const stripe = cssColor((axis === "room" ? catOf(b.categoryId)?.colorToken : roomOf(b.roomId)?.colorToken) ?? "cat-personal");
             return (
               <div className="text-[11px] md:text-xs">
-                <span className={cx("absolute left-0 top-0 bottom-0 w-1", stripe)} />
+                {/* FC v7 class-mode ignores event.backgroundColor → paint our own fill layer */}
+                <span className="absolute inset-0 -z-10" style={{ background: fill }} />
+                <span className="absolute left-0 top-0 bottom-0 w-1" style={{ background: stripe }} />
                 <div className="font-bold truncate">{b.title}{b.recurring ? " ↻" : ""}</div>
                 <div className="opacity-90 truncate">{i.timeText} · {axis === "room" ? catOf(b.categoryId)?.name : roomOf(b.roomId)?.name}</div>
                 {b.user && <div className="opacity-75 truncate hidden md:block">{b.user.name}</div>}
@@ -235,8 +234,8 @@ export function CalendarPage() {
             <div className="flex flex-col gap-2.5 text-sm">
               <div>{fmtDate(s)} {fmtTime(s)}–{fmtTime(e)}{detail.recurring && <span className="text-muted"> · {describe(fromRRule(detail.rrule), new Date(detail.seriesStart))} ↻</span>}</div>
               <div className="flex gap-2">
-                {room && <Chip on color={roomBg(room.colorToken)}>{room.name}</Chip>}
-                {cat && <Chip on={false} dot={catBg(cat.colorToken)} className="!text-fg">{cat.name}</Chip>}
+                {room && <Chip on color={cssColor(room.colorToken)}>{room.name}</Chip>}
+                {cat && <Chip on={false} dot={cssColor(cat.colorToken)} className="!text-fg">{cat.name}</Chip>}
               </div>
               <div className="flex items-center gap-2 text-[13px] text-muted">
                 {detail.user ? (<>{detail.user.image ? <img src={detail.user.image} className="h-6 w-6 rounded-full" alt="" /> : <span className="h-6 w-6 rounded-full bg-teal-soft" />}{detail.user.name}</>) : "登入後可見登記人"}

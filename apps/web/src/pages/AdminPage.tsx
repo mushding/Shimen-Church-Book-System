@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Category, Role, Room } from "@smsk/shared";
 import { api, isAdmin, useCategories, useMe, useRooms } from "../api";
-import { Button, CAT_BG, Input, ROOM_BG, Segmented, catBg, cx, roomBg, useToast } from "../ui";
+import { Button, Input, Modal, Segmented, cx, toHex, useToast } from "../ui";
 
 type AdminUser = { id: string; name: string; image: string | null; role: Role | null; createdAt: string };
-const j = async <T,>(p: Promise<Response>): Promise<T> => { const r = await p; if (!r.ok) throw new Error(`${r.status}`); return r.json(); };
+const j = async <T,>(p: Promise<Response>): Promise<T> => {
+  const r = await p;
+  if (r.status === 409) throw new Error("in_use");
+  if (!r.ok) throw new Error(`${r.status}`);
+  return r.status === 204 ? (undefined as T) : r.json();
+};
 
 export function AdminPage() {
   const me = useMe();
@@ -25,56 +30,107 @@ export function AdminPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return <section className="flex flex-col gap-3"><h2 className="font-display text-base font-bold text-primary">{title}</h2>{children}</section>;
 }
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (b: boolean) => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={() => onChange(!on)}
-      className={cx("relative box-border block h-[26px] w-11 shrink-0 rounded-full p-[3px] align-middle outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/50",
-        on ? "bg-primary" : "bg-border")}>
+      className={cx("relative box-border block h-[26px] w-11 shrink-0 rounded-full p-[3px] align-middle outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/50", on ? "bg-primary" : "bg-border")}>
       <span className={cx("block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out", on ? "translate-x-[18px]" : "translate-x-0")} />
     </button>
+  );
+}
+/** Native colour picker; shows the resolved swatch (token → hex) and emits hex. */
+function ColorPicker({ token, onChange, label }: { token: string; onChange: (hex: string) => void; label: string }) {
+  const [hex, setHex] = useState("#888888");
+  useEffect(() => { setHex(toHex(token)); }, [token]);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const pick = (v: string) => { setHex(v); clearTimeout(timer.current); timer.current = setTimeout(() => onChange(v), 400); }; // picker fires per drag tick → debounce PATCH
+  return (
+    <label className="relative block h-8 w-12 cursor-pointer overflow-hidden rounded-sm ring-1 ring-black/10" style={{ background: hex }} title={label}>
+      <input type="color" aria-label={label} value={hex} className="absolute inset-0 h-full w-full cursor-pointer opacity-0" onChange={(e) => pick(e.target.value)} />
+    </label>
+  );
+}
+
+/** Generic sortable table: HTML5 drag & drop on rows → PATCH sort for the changed ones. Extra columns via `cols`. */
+type Base = { id: number; name: string; colorToken: string; sort: number; active: boolean };
+function EntityTable<T extends Base>({ items, cols, onPatch, onDelete, addLabel, onAdd, hint }: {
+  items: T[]; cols: { head: string; cell: (t: T) => ReactNode }[];
+  onPatch: (id: number, patch: Partial<T>) => Promise<unknown>; onDelete: (t: T) => Promise<unknown>;
+  addLabel: string; onAdd: (name: string) => Promise<unknown>; hint?: string;
+}) {
+  const toast = useToast();
+  const sorted = useMemo(() => [...items].sort((a, b) => a.sort - b.sort || a.id - b.id), [items]);
+  const [order, setOrder] = useState<number[]>([]);
+  useEffect(() => { setOrder(sorted.map((x) => x.id)); }, [sorted]);
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  const [name, setName] = useState("");
+  const [del, setDel] = useState<T | null>(null);
+  const rows = order.map((id) => sorted.find((x) => x.id === id)!).filter(Boolean);
+
+  const drop = async () => {
+    if (drag === null || over === null || drag === over) return void (setDrag(null), setOver(null));
+    const next = order.filter((id) => id !== drag);
+    next.splice(next.indexOf(over) + (order.indexOf(drag) < order.indexOf(over) ? 1 : 0), 0, drag);
+    setOrder(next); setDrag(null); setOver(null);
+    // ponytail: PATCH every row whose position changed; N ≤ ~15 so fine
+    await Promise.all(next.map((id, i) => (sorted.find((x) => x.id === id)!.sort !== i ? onPatch(id, { sort: i } as Partial<T>) : null)));
+  };
+  return (
+    <>
+      <div className="overflow-x-auto rounded-lg border-2 border-border bg-surface">
+        <table className="w-full text-sm">
+          <thead><tr className="text-left text-xs text-muted">{["", "顏色", "名稱", ...cols.map((c) => c.head), "啟用", ""].map((h, i) => <th key={i} className="border-b-2 border-border px-3 py-2.5 font-bold">{h}</th>)}</tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} draggable onDragStart={() => setDrag(r.id)} onDragOver={(e) => { e.preventDefault(); setOver(r.id); }} onDrop={drop} onDragEnd={() => { setDrag(null); setOver(null); }}
+                className={cx("border-b border-border transition-colors", !r.active && "opacity-50", drag === r.id && "opacity-40", over === r.id && drag !== null && drag !== r.id && "bg-today")}>
+                <td className="w-8 cursor-grab select-none px-2 text-center text-muted active:cursor-grabbing" title="拖曳排序">⋮⋮</td>
+                <td className="px-3 py-2"><ColorPicker token={r.colorToken} label={`${r.name} 顏色`} onChange={(hex) => onPatch(r.id, { colorToken: hex } as Partial<T>)} /></td>
+                <td className="px-3 py-2"><Input className="!min-h-[36px] !py-1 !text-sm" defaultValue={r.name} onBlur={(e) => e.target.value.trim() && e.target.value !== r.name && onPatch(r.id, { name: e.target.value.trim() } as Partial<T>)} /></td>
+                {cols.map((c, i) => <td key={i} className="px-3 py-2">{c.cell(r)}</td>)}
+                <td className="px-3 py-2"><Toggle on={r.active} label="啟用" onChange={(b) => onPatch(r.id, { active: b } as Partial<T>)} /></td>
+                <td className="px-2 py-2 text-right"><button type="button" onClick={() => setDel(r)} aria-label={`刪除 ${r.name}`} className="rounded-pill px-2 py-1 text-xs text-danger hover:bg-danger/10">刪除</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (name.trim()) onAdd(name.trim()).then(() => setName("")); }}>
+        <Input placeholder={`新${addLabel}名稱`} value={name} onChange={(e) => setName(e.target.value)} className="!max-w-xs" />
+        <Button type="submit" size="sm" disabled={!name.trim()}>新增{addLabel}</Button>
+      </form>
+      {hint && <div className="text-xs text-muted">{hint}</div>}
+      <Modal open={!!del} onClose={() => setDel(null)}>
+        <div className="font-display text-lg font-bold text-danger">刪除「{del?.name}」？</div>
+        <div className="mt-1.5 text-xs text-muted">若已有登記使用此{addLabel}會拒絕刪除，請改為停用。</div>
+        <div className="mt-4 flex gap-2">
+          <Button variant="ghost" size="sm" className="flex-1" onClick={() => setDel(null)}>取消</Button>
+          <Button variant="danger-solid" size="sm" className="flex-1" onClick={() => del && onDelete(del).then(() => setDel(null)).catch((e: Error) => toast("err", e.message === "in_use" ? `「${del.name}」已有登記使用，請改為停用` : "刪除失敗"))}>刪除</Button>
+        </div>
+      </Modal>
+    </>
   );
 }
 
 function Rooms() {
   const qc = useQueryClient(); const toast = useToast();
   const rooms = useRooms().data ?? [];
-  const [name, setName] = useState("");
   const inv = () => qc.invalidateQueries({ queryKey: ["rooms"] });
   const upd = useMutation({ mutationFn: ({ id, ...json }: Partial<Room> & { id: number }) => j(api.api.admin.rooms[":id"].$patch({ param: { id: String(id) }, json })), onSuccess: inv, onError: () => toast("err", "更新失敗") });
   const add = useMutation({
     mutationFn: (name: string) => j(api.api.admin.rooms.$post({ json: { name, colorToken: `room-${(rooms.length % 10) + 1}`, sort: rooms.length, active: true, allowOverlap: false } })),
-    onSuccess: () => { inv(); setName(""); toast("ok", "已新增場地"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
+    onSuccess: () => { inv(); toast("ok", "已新增場地"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
   });
+  const del = useMutation({ mutationFn: (id: number) => j(api.api.admin.rooms[":id"].$delete({ param: { id: String(id) } })), onSuccess: () => { inv(); toast("ok", "已刪除"); } });
   return (
     <Section title="場地">
-      <div className="overflow-x-auto rounded-lg border-2 border-border bg-surface">
-        <table className="w-full text-sm">
-          <thead><tr className="text-left text-xs text-muted">{["顏色", "名稱", "排序", "可重疊", "啟用"].map((h) => <th key={h} className="border-b-2 border-border px-3 py-2.5 font-bold">{h}</th>)}</tr></thead>
-          <tbody>
-            {[...rooms].sort((a, b) => a.sort - b.sort || a.id - b.id).map((r) => (
-              <tr key={r.id} className={cx("border-b border-border", !r.active && "opacity-50")}>
-                <td className="px-3 py-2">
-                  <select value={r.colorToken} onChange={(e) => upd.mutate({ id: r.id, colorToken: e.target.value })} className={cx("h-8 w-16 rounded-sm text-white text-xs font-bold", roomBg(r.colorToken))}>
-                    {Object.keys(ROOM_BG).map((t) => <option key={t} value={t} className="text-fg bg-surface">{t.replace("room-", "色 ")}</option>)}
-                  </select>
-                </td>
-                <td className="px-3 py-2"><Input className="!min-h-[36px] !py-1 !text-sm" defaultValue={r.name} onBlur={(e) => e.target.value.trim() && e.target.value !== r.name && upd.mutate({ id: r.id, name: e.target.value.trim() })} /></td>
-                <td className="px-3 py-2"><Input type="number" className="!min-h-[36px] !w-16 !py-1 !text-sm" defaultValue={r.sort} onBlur={(e) => Number(e.target.value) !== r.sort && upd.mutate({ id: r.id, sort: Number(e.target.value) })} /></td>
-                <td className="px-3 py-2"><Toggle on={r.allowOverlap} label="可重疊" onChange={(b) => upd.mutate({ id: r.id, allowOverlap: b })} /></td>
-                <td className="px-3 py-2"><Toggle on={r.active} label="啟用" onChange={(b) => upd.mutate({ id: r.id, active: b })} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); name.trim() && add.mutate(name.trim()); }}>
-        <Input placeholder="新場地名稱" value={name} onChange={(e) => setName(e.target.value)} className="!max-w-xs" />
-        <Button type="submit" size="sm" disabled={!name.trim() || add.isPending}>新增場地</Button>
-      </form>
-      <div className="text-xs text-muted">停用的場地不出現在篩選與表單，但舊登記仍可看。「可重疊」= 不做衝突偵測（例：教會室外）。</div>
+      <EntityTable items={rooms} addLabel="場地" hint="拖曳 ⋮⋮ 排序。停用的場地不出現在篩選與表單，但舊登記仍可看。「可重疊」= 不做衝突偵測（例：教會室外）。"
+        cols={[{ head: "可重疊", cell: (r) => <Toggle on={r.allowOverlap} label="可重疊" onChange={(b) => upd.mutate({ id: r.id, allowOverlap: b })} /> }]}
+        onPatch={(id, p) => upd.mutateAsync({ id, ...p })} onDelete={(r) => del.mutateAsync(r.id)} onAdd={(n) => add.mutateAsync(n)} />
     </Section>
   );
 }
@@ -82,38 +138,17 @@ function Rooms() {
 function Categories() {
   const qc = useQueryClient(); const toast = useToast();
   const cats = useCategories().data ?? [];
-  const [name, setName] = useState("");
   const inv = () => qc.invalidateQueries({ queryKey: ["categories"] });
   const upd = useMutation({ mutationFn: ({ id, ...json }: Partial<Category> & { id: number }) => j(api.api.admin.categories[":id"].$patch({ param: { id: String(id) }, json })), onSuccess: inv, onError: () => toast("err", "更新失敗") });
   const add = useMutation({
     mutationFn: (name: string) => j(api.api.admin.categories.$post({ json: { name, colorToken: "cat-personal", sort: cats.length, active: true } })),
-    onSuccess: () => { inv(); setName(""); toast("ok", "已新增類別"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
+    onSuccess: () => { inv(); toast("ok", "已新增類別"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
   });
+  const del = useMutation({ mutationFn: (id: number) => j(api.api.admin.categories[":id"].$delete({ param: { id: String(id) } })), onSuccess: () => { inv(); toast("ok", "已刪除"); } });
   return (
     <Section title="類別">
-      <div className="overflow-x-auto rounded-lg border-2 border-border bg-surface">
-        <table className="w-full text-sm">
-          <thead><tr className="text-left text-xs text-muted">{["顏色", "名稱", "排序", "啟用"].map((h) => <th key={h} className="border-b-2 border-border px-3 py-2.5 font-bold">{h}</th>)}</tr></thead>
-          <tbody>
-            {[...cats].sort((a, b) => a.sort - b.sort || a.id - b.id).map((c) => (
-              <tr key={c.id} className={cx("border-b border-border", !c.active && "opacity-50")}>
-                <td className="px-3 py-2">
-                  <select value={c.colorToken} onChange={(e) => upd.mutate({ id: c.id, colorToken: e.target.value })} className={cx("h-8 w-16 rounded-sm text-white text-xs font-bold", catBg(c.colorToken))}>
-                    {Object.keys(CAT_BG).map((t) => <option key={t} value={t} className="text-fg bg-surface">{t.replace("cat-", "")}</option>)}
-                  </select>
-                </td>
-                <td className="px-3 py-2"><Input className="!min-h-[36px] !py-1 !text-sm" defaultValue={c.name} onBlur={(e) => e.target.value.trim() && e.target.value !== c.name && upd.mutate({ id: c.id, name: e.target.value.trim() })} /></td>
-                <td className="px-3 py-2"><Input type="number" className="!min-h-[36px] !w-16 !py-1 !text-sm" defaultValue={c.sort} onBlur={(e) => Number(e.target.value) !== c.sort && upd.mutate({ id: c.id, sort: Number(e.target.value) })} /></td>
-                <td className="px-3 py-2"><Toggle on={c.active} label="啟用" onChange={(b) => upd.mutate({ id: c.id, active: b })} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); name.trim() && add.mutate(name.trim()); }}>
-        <Input placeholder="新類別名稱" value={name} onChange={(e) => setName(e.target.value)} className="!max-w-xs" />
-        <Button type="submit" size="sm" disabled={!name.trim() || add.isPending}>新增類別</Button>
-      </form>
+      <EntityTable items={cats} addLabel="類別" cols={[]} hint="類別顏色顯示為登記塊左側細條（或切換「類別」色軸時當主色）。"
+        onPatch={(id, p) => upd.mutateAsync({ id, ...p })} onDelete={(c) => del.mutateAsync(c.id)} onAdd={(n) => add.mutateAsync(n)} />
     </Section>
   );
 }

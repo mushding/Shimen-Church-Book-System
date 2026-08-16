@@ -8,4 +8,4 @@
 - `docs/architecture.md` — system design（拓撲 / 內部 / 資料模型 / 時序 / CI-CD）
 - `docs/pre-plan.md`、`docs/survey/` — 背景與 POC 結果
 
-規則：顏色/字體/圓角只用 `@smsk/ui` tokens（Tailwind utilities），不硬寫 hex；場地色 `bg-room-N`；暗色用 `.dark`。
+規則：顏色/字體/圓角只用 `@smsk/ui` tokens（Tailwind utilities），不硬寫 hex；暗色用 `.dark`。例外：場地/類別顏色由 admin 色票選擇器決定（DB `colorToken` = `room-N`/`cat-xxx` token 或 `#hex`），前端一律經 `cssColor()` 走 inline style。

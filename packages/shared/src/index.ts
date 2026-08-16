@@ -10,7 +10,7 @@ export const roleSchema = z.enum(ROLES);
 // from default-free field sets, otherwise a PATCH {active:false} would also reset sort/… to defaults.
 const roomFields = z.object({
   name: z.string().trim().min(1).max(40),
-  colorToken: z.string().regex(/^room-[a-z0-9-]+$/), // maps to `bg-room-N` in @smsk/ui
+  colorToken: z.string().regex(/^(room-[a-z0-9-]+|#[0-9a-fA-F]{6})$/), // DS token `room-N` or custom hex (admin colour picker)
   sort: z.number().int(),
   active: z.boolean(),
   allowOverlap: z.boolean(), // e.g. 教會室外 — never conflicts
@@ -23,7 +23,7 @@ export type Room = z.infer<typeof room>;
 
 const categoryFields = z.object({
   name: z.string().trim().min(1).max(40),
-  colorToken: z.string().regex(/^cat-[a-z0-9-]+$/), // bg-cat-church …
+  colorToken: z.string().regex(/^(cat-[a-z0-9-]+|#[0-9a-fA-F]{6})$/), // DS token `cat-xxx` or custom hex
   sort: z.number().int(),
   active: z.boolean(),
 });
