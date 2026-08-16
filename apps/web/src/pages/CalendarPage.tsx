@@ -295,7 +295,7 @@ export function CalendarPage() {
           views={{ timeGridThreeDay: { type: "timeGrid", duration: { days: 3 } }, listWeek: { type: "list", duration: { days: 7 } } }}
           headerToolbar={false}
           height="auto"
-          slotMinTime="06:00:00" slotMaxTime="23:00:00" slotDuration="00:30:00" snapDuration="00:15:00" slotHeaderInterval="01:00"
+          slotMinTime="06:00:00" slotMaxTime="24:00:00" slotDuration="00:30:00" snapDuration="00:15:00" slotHeaderInterval="01:00"
           allDaySlot={false} nowIndicator expandRows dayMaxEvents={4}
           eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
           slotHeaderFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
