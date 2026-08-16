@@ -52,7 +52,7 @@ React 19 + Vite + Tailwind v4 + shadcn + FullCalendar v7 / Hono + Drizzle + Post
 Phase 3 前端已落地。接下來：
 1. **使用者先過一輪 UI**（`pnpm dev:api` + `pnpm dev:web`，或 `DEV_LOGIN=1 pnpm dev:api` 後 `curl -X POST localhost:5173/api/dev/login -d '{"name":"x","role":"admin"}'` 拿 cookie）：手機真機觸控拖曳、色相、密度。回饋 → 改 `apps/web/src/*` / `packages/ui/tokens.css`。
 2. 上線收尾：使用者 LINE 登入 prod 一次 → `kubectl -n smsk exec deploy/app -- ./node_modules/.bin/tsx scripts/set-role.ts <LINE userId> admin` → 關舊 DO droplet（DNS 已切）→ 1–2 週後買 1 年 CUD。本機 dev LINE callback（localhost:5173）已從 LINE console 移除，本機用 `DEV_LOGIN=1`。
-3. 發版：`git tag vX.Y.Z && git push origin vX.Y.Z` → prod；push main → staging。
+3. 發版：`git tag vX.Y.Z <自己的 commit> && git push origin vX.Y.Z` → prod；push main → staging。**地雷**：`git pull` 後 HEAD 常是 bot 的 `deploy(staging) … [skip ci]` commit，tag 標在它上面 workflow 會被跳過 → 一定標在自己的 commit（`git log` 找）。tag 觸發也不能有 `paths-ignore`。
 3. Phase 5：staging 驗 → LINE console 加 prod callback → DNS 切換 → 第一個 admin 用 `set-role` → 舊 DO 保留一週。（無資料遷移。）
 4. 打磨（可後）：code-split（bundle 650KB）、eventContent 顯示多筆 conflict、admin 場地拖曳排序、i18n 時間格式一致。
 5. Phase 2 尾巴（等使用者）：V3/V4/V5/V10；本機 PG（`DATABASE_URL`）或續用 pglite。
