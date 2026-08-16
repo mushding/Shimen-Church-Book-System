@@ -13,6 +13,7 @@ import { BookingForm, initialForm, toInput, type FormValue } from "../components
 import { ConfirmDelete, ScopeDialog } from "../components/Dialogs";
 import { addMinutes, fmtDate, fmtRange, fmtTime, roundTo } from "../lib/time";
 import { describe, fromRRule } from "../lib/recur";
+import { groupByZone } from "../lib/rooms";
 
 type Editor = { mode: "create" } | { mode: "edit"; inst: BookingInstance; scope: EditScope };
 type Pending =
@@ -65,6 +66,7 @@ export function CalendarPage() {
   const [force, setForce] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [settings, setSettings] = useState(false);
+  const [roomPick, setRoomPick] = useState(false);
 
   const roomOf = (id: number) => rooms.find((r) => r.id === id);
   const catOf = (id: number) => categories.find((c) => c.id === id);
@@ -234,20 +236,53 @@ export function CalendarPage() {
 
       {/* ---- room filter ---- */}
       <div className="flex flex-wrap items-center gap-2 px-3 pb-3 md:px-6">
-        <span className="text-sm font-bold text-muted">顯示場地</span>
-        <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] md:flex-wrap md:overflow-visible">
-          {activeRooms.map((r) => (
-            <Chip key={r.id} size="sm" check on={shown(r.id)} color={cssColor(r.colorToken)} onClick={() => setHidden((h) => (h.includes(r.id) ? h.filter((x) => x !== r.id) : [...h, r.id]))}>{r.name}</Chip>
-          ))}
-          {hiddenCount > 0 && <Chip size="sm" on={false} onClick={() => setHidden([])} className="!border-primary !text-primary">全部顯示</Chip>}
-        </div>
-        {!mobile && (
-          <div className="flex flex-none items-center gap-1.5">
-            <span className="text-sm font-bold text-muted">顏色依</span>
-            <Segmented size="sm" label="顏色依場地或類別" value={axis} onChange={setAxis} options={[{ value: "room", label: "場地" }, { value: "category", label: "類別" }]} />
-          </div>
+        {mobile ? (
+          <button type="button" onClick={() => setRoomPick(true)} className="flex min-h-[44px] flex-1 items-center justify-between gap-2 rounded-pill border-2 border-border bg-surface px-4 text-base font-bold">
+            <span className="flex items-center gap-2"><Icon name="pin" size={20} className="text-primary" />顯示場地：{hiddenCount === 0 ? `全部（${activeRooms.length}）` : `${activeRooms.length - hiddenCount} / ${activeRooms.length} 個`}</span>
+            <Icon name="chevron-right" size={20} className="text-muted" />
+          </button>
+        ) : (
+          <>
+            <span className="text-sm font-bold text-muted">顯示場地</span>
+            <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+              {activeRooms.map((r) => (
+                <Chip key={r.id} size="sm" check on={shown(r.id)} color={cssColor(r.colorToken)} onClick={() => setHidden((h) => (h.includes(r.id) ? h.filter((x) => x !== r.id) : [...h, r.id]))}>{r.name}</Chip>
+              ))}
+              {hiddenCount > 0 && <Chip size="sm" on={false} onClick={() => setHidden([])} className="!border-primary !text-primary">全部顯示</Chip>}
+            </div>
+            <div className="flex flex-none items-center gap-1.5">
+              <span className="text-sm font-bold text-muted">顏色依</span>
+              <Segmented size="sm" label="顏色依場地或類別" value={axis} onChange={setAxis} options={[{ value: "room", label: "場地" }, { value: "category", label: "類別" }]} />
+            </div>
+          </>
         )}
       </div>
+
+      {/* mobile room picker sheet */}
+      <Modal open={roomPick} onClose={() => setRoomPick(false)} title="顯示哪些場地" icon="pin">
+        <div className="mb-3 flex gap-2">
+          <Button size="sm" variant={hiddenCount === 0 ? "primary" : "ghost"} onClick={() => setHidden([])}>全部顯示</Button>
+          <Button size="sm" variant="ghost" onClick={() => setHidden(activeRooms.map((r) => r.id))}>全部隱藏</Button>
+        </div>
+        <div className="flex flex-col divide-y divide-border/70">
+          {groupByZone(activeRooms).map(([zone, list]) => (
+            <div key={zone ?? "_"} className="py-2.5 first:pt-0 last:pb-0">
+              {zone && <div className="mb-1.5 text-sm font-bold text-muted">{zone}</div>}
+              <div className="flex flex-col gap-1.5">
+                {list.map((r) => (
+                  <button key={r.id} type="button" role="checkbox" aria-checked={shown(r.id)} onClick={() => setHidden((h) => (h.includes(r.id) ? h.filter((x) => x !== r.id) : [...h, r.id]))}
+                    className={cx("flex min-h-[52px] items-center gap-3 rounded-md border-2 px-3.5 text-left text-base font-bold", shown(r.id) ? "border-primary bg-today" : "border-border bg-surface text-muted")}>
+                    <span className={cx("flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border-2 border-primary", shown(r.id) ? "bg-primary text-primary-fg" : "bg-surface")}>{shown(r.id) && <Icon name="check" size={16} />}</span>
+                    <span className="inline-block h-4 w-4 shrink-0 rounded-[4px]" style={{ background: cssColor(r.colorToken) }} />
+                    {r.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <Button className="mt-4 w-full" icon="check" onClick={() => setRoomPick(false)}>完成</Button>
+      </Modal>
 
       {/* ---- calendar ---- */}
       <div className="px-2 pb-28 md:px-6 md:pb-8">

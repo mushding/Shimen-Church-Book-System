@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { BookingInput, Category, Conflict, Room } from "@smsk/shared";
 import { Button, Chip, Field, Icon, Input, cssColor, cx } from "../ui";
 import { RepeatEditor } from "./RepeatEditor";
+import { groupByZone } from "../lib/rooms";
 import { DateField, TimeField } from "./Pickers";
 import { describe, fromRRule, toRRule, type Repeat } from "../lib/recur";
 import { addMinutes, dateInput, fmtDate, fmtShort, fmtTime, fromInputs, timeInput } from "../lib/time";
@@ -19,13 +20,6 @@ export function toInput(v: FormValue, force: boolean): BookingInput | string {
   const start = fromInputs(v.date, v.startTime), end = fromInputs(v.date, v.endTime);
   if (!(end > start)) return "結束時間要比開始時間晚";
   return { title: v.title.trim(), note: v.note, roomId: v.roomId, categoryId: v.categoryId, start: start.toISOString(), end: end.toISOString(), rrule: toRRule(v.repeat, start), force };
-}
-
-/** Group rooms by zone, keeping first-appearance order (rooms already sorted by admin `sort`); unzoned rooms last. */
-function groupByZone(rooms: Room[]): [string | null, Room[]][] {
-  const m = new Map<string | null, Room[]>();
-  for (const r of rooms) { const z = r.zone?.trim() || null; if (!m.has(z)) m.set(z, []); m.get(z)!.push(r); }
-  return [...m.entries()].sort(([a], [b]) => (a === null ? 1 : 0) - (b === null ? 1 : 0));
 }
 
 const DURATIONS = [{ m: 60, label: "1 小時" }, { m: 90, label: "1.5 小時" }, { m: 120, label: "2 小時" }, { m: 180, label: "3 小時" }];
