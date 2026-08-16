@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>石門教會場地登記</title>
+    <script>
+      // pre-paint: keep same keys as useDark/useBigText so there's no light→dark flash
+      try {
+        var d = localStorage.getItem("smsk.dark"), b = localStorage.getItem("smsk.bigText");
+        if (d === null ? matchMedia("(prefers-color-scheme: dark)").matches : d === "true") document.documentElement.classList.add("dark");
+        if (b === "true") document.documentElement.classList.add("big-text");
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
