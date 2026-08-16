@@ -24,7 +24,7 @@ infra/
 ## 2. GCP（一次）
 ```sh
 gcloud auth login
-PROJECT=<id> ./infra/gcp/create.sh        # static IP、fw 80/443、bucket、VM(e2-medium, 20GB pd-standard, k3s)
+PROJECT=smsk-app ./infra/gcp/create.sh   # project 已建、已綁 billing、compute/storage API 已開        # static IP、fw 80/443、bucket、VM(e2-medium, 20GB pd-standard, k3s)
 ```
 DNS：`book.smsk.church` 與 `staging.book.smsk.church` A 記錄 → 印出的 IP（Cloudflare 上可先 DNS-only；HTTP-01 簽完再開 proxy 也可）。
 CUD：Console → Compute → Committed use discounts → 1 年 E2 1 vCPU/4GB asia-east1（US$35 → 24.6/月）。
