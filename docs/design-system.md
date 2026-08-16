@@ -3,7 +3,14 @@
 ## 真相在哪
 - **探索/說明頁**：Claude Design 專案「石門教會 場地登記 — 設計系統」
   https://claude.ai/design/p/dc73d60d-9e41-42e0-9875-ba9f5f653f92?file=%E7%9F%B3%E9%96%80%E6%95%99%E6%9C%83%E8%A8%AD%E8%A8%88%E7%B3%BB%E7%B5%B1.dc.html
-  （tokens、字體、元件、手機主畫面亮/暗、守則）
+  頁面（同一專案）：
+  1. `石門教會設計系統.dc.html` — tokens、字體、基礎元件、手機三日視圖亮/暗、守則
+  2. `02 桌機主畫面.dc.html` — 1280 週視圖亮/暗、場地 chips、popover、FAB
+  3. `03 新增修改登記.dc.html` — 手機 sheet：新增表單、衝突 + 強制建立、重複規則、詳情、修改週期範圍（此筆/此後/全部）、刪除確認
+  4. `04 管理後台.dc.html` — 場地列表（排序/啟用）、編輯場地（10 色 tokens 選色 + 預覽）、使用者與角色（member/staff/admin segmented）
+  5. `05 狀態與登入.dc.html` — 登入頁、空狀態、載入骨架、錯誤、登入過期、toast 語彙
+  共用 `ds.css`（與 tokens.css 同值）。
+  **下一步（使用者操作）**：Claude Design UI → Create design system → from 此 project。之後我用 `list_design_systems` 取 id 綁定。
 - **Code 真相**：`packages/ui/src/tokens.css`（CSS variables）+ `packages/ui/src/theme.css`（Tailwind v4 `@theme inline` 橋接）。
   Design 頁與 tokens.css 一比一；改色先改 tokens.css，再同步 Design 頁。
 
