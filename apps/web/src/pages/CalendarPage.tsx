@@ -163,7 +163,7 @@ export function CalendarPage() {
     <div className="min-h-dvh bg-bg text-fg">
       {/* ---- header ---- */}
       <header className="flex items-center gap-3 px-3 py-3 md:px-6">
-        <h1 className="font-display text-xl font-bold leading-tight text-primary md:text-2xl">石門教會 <span className="whitespace-nowrap">場地登記</span></h1>
+        <h1 className="font-display text-xl font-bold leading-tight text-primary md:text-2xl">石門水庫教會 <span className="whitespace-nowrap">場地登記系統 <span className="text-base font-normal text-muted md:text-lg">V2</span></span></h1>
         <div className="ml-auto flex items-center gap-2">
           {mobile ? (
             <button onClick={() => setSettings(true)} className="inline-flex min-h-[44px] items-center gap-2 rounded-pill border-2 border-border bg-surface py-1 pl-1.5 pr-3.5 text-sm font-bold">
