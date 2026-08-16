@@ -83,7 +83,7 @@ export function CalendarPage() {
     const s = start ?? roundTo(new Date(), 30);
     let e = end ?? addMinutes(s, 60);
     if (e.getDate() !== s.getDate()) e = new Date(s.getFullYear(), s.getMonth(), s.getDate(), 23, 59); // late night: don't cross midnight
-    setForm(initialForm({ start: s, end: e, roomId: activeRooms.find((r) => shown(r.id))?.id ?? activeRooms[0]?.id, categoryId: categories.find((c) => c.active)?.id }));
+    setForm(initialForm({ start: s, end: e })); // no room/category default → form reveals step by step
     setConflicts(null); setForce(false); setErr(null); setEditor({ mode: "create" });
   };
   const openEdit = (inst: BookingInstance, scope: EditScope) => {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { BookingInput, Category, Conflict, Room } from "@smsk/shared";
 import { Button, Chip, Field, Icon, Input, cssColor, cx } from "../ui";
 import { RepeatEditor } from "./RepeatEditor";
@@ -28,6 +28,12 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
   submitLabel: string; onSubmit: () => void; onCancel: () => void; busy?: boolean; error?: string | null;
 }) {
   const [repeatOpen, setRepeatOpen] = useState(false);
+  // progressive disclosure（長者一次只看一件事）：名稱 → 場地 → 類別 → 其餘。已揭露的段落不再收回。
+  const stageNow = !value.title.trim() ? 0 : !value.roomId ? 1 : !value.categoryId ? 2 : 3;
+  const [stage, setStage] = useState(stageNow);
+  useEffect(() => { if (stageNow > stage) setStage(stageNow); }, [stageNow, stage]);
+  const lastRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { lastRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }, [stage]);
   const dtstart = useMemo(() => fromInputs(value.date, value.startTime), [value.date, value.startTime]);
   const dtend = useMemo(() => fromInputs(value.date, value.endTime), [value.date, value.endTime]);
   const durationMin = Math.round((dtend.getTime() - dtstart.getTime()) / 60_000);
@@ -55,7 +61,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         </div>
       )}
       <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練、姊妹會" /></Field>
-      <div className="flex flex-col gap-1.5">
+      {stage >= 1 && <div ref={stage === 1 ? lastRef : undefined} className="flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">場地<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
         <div role="radiogroup" aria-label="場地" className="flex flex-wrap gap-2">
           {rooms.filter((r) => r.active || r.id === value.roomId).map((r) => (
@@ -63,8 +69,8 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
               className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}</Chip>
           ))}
         </div>
-      </div>
-      <div className="flex flex-col gap-1.5">
+      </div>}
+      {stage >= 2 && <div ref={stage === 2 ? lastRef : undefined} className="flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">類別<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
         <div role="radiogroup" aria-label="類別" className="flex flex-wrap gap-2">
           {categories.filter((c) => c.active || c.id === value.categoryId).map((c) => (
@@ -72,7 +78,8 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
               className={cx(value.categoryId === c.id && "!bg-today !text-fg !border-primary")}>{c.name}</Chip>
           ))}
         </div>
-      </div>
+      </div>}
+      {stage >= 3 && <div ref={lastRef} className="flex flex-col gap-4">
       <Field label="日期" required><Input type="date" value={value.date} onChange={(e) => set("date", e.target.value)} /></Field>
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-3">
@@ -100,10 +107,15 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           <span className="text-base leading-relaxed"><b>仍要登記（幹事權限）</b><br /><span className="text-sm text-muted">忽略衝突，兩筆登記同時存在。</span></span>
         </label>
       )}
+      </div>}
       {error && <div role="alert" className="flex items-center gap-2 rounded-md bg-danger/10 px-3.5 py-2.5 text-base font-bold text-danger"><Icon name="alert" size={20} />{error}</div>}
       <div className="mt-1 flex gap-3">
         <Button variant="ghost" className="flex-1" onClick={onCancel}>取消</Button>
-        <Button type="submit" className="flex-[2]" icon="check" disabled={busy || (!!conflicts?.length && !force)}>{busy ? "儲存中…" : submitLabel}</Button>
+        {stage >= 3 ? (
+          <Button type="submit" className="flex-[2]" icon="check" disabled={busy || (!!conflicts?.length && !force)}>{busy ? "儲存中…" : submitLabel}</Button>
+        ) : (
+          <div className="flex flex-[2] items-center justify-center text-sm text-muted">{stage === 0 ? "先填活動名稱" : stage === 1 ? "再選一個場地" : "再選一個類別"}</div>
+        )}
       </div>
     </form>
   );

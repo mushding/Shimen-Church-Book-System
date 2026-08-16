@@ -16,6 +16,7 @@ test("happy path: login → create (weekly) → conflict/force → edit this →
   await page.getByRole("button", { name: "新增登記" }).click();
   await dlg.getByPlaceholder("例：青少契劇會排練").fill("青少契劇會排練");
   await dlg.getByRole("button", { name: /^副堂/ }).click();
+  await dlg.getByRole("button", { name: /^教會/ }).click();
   await dlg.getByRole("button", { name: /重複/ }).click();
   await dlg.getByRole("button", { name: "每週" }).click();
   await dlg.getByText("次後結束").click();
@@ -28,6 +29,7 @@ test("happy path: login → create (weekly) → conflict/force → edit this →
   await page.getByRole("button", { name: "新增登記" }).click();
   await dlg.getByPlaceholder("例：青少契劇會排練").fill("衝突測試");
   await dlg.getByRole("button", { name: /^副堂/ }).click();
+  await dlg.getByRole("button", { name: /^教會/ }).click();
   await dlg.getByRole("button", { name: "確認登記" }).click();
   await expect(dlg.getByText("已經有人登記")).toBeVisible();
   await dlg.getByText("仍要登記").click();
