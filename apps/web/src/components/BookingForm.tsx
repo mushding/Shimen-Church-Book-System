@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { BookingInput, Category, Conflict, Room } from "@smsk/shared";
 import { Button, Chip, Field, Icon, Input, cssColor, cx } from "../ui";
 import { RepeatEditor } from "./RepeatEditor";
+import { DateField, TimeField } from "./Pickers";
 import { describe, fromRRule, toRRule, type Repeat } from "../lib/recur";
 import { addMinutes, dateInput, fmtDate, fmtShort, fmtTime, fromInputs, timeInput } from "../lib/time";
 
@@ -94,11 +95,11 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         </div>
       </div>}
       {stage >= 3 && <div ref={lastRef} className="flex flex-col gap-4">
-      <Field label="日期" required><Input type="date" value={value.date} onChange={(e) => set("date", e.target.value)} /></Field>
+      <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">日期<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><DateField value={value.date} onChange={(v) => set("date", v)} label="選日期" /></div>
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="開始時間" required><Input type="time" step={900} value={value.startTime} err={!!conflicts?.length || timeBad} onChange={(e) => set("startTime", e.target.value)} /></Field>
-          <Field label="結束時間" required><Input type="time" step={900} value={value.endTime} err={!!conflicts?.length || timeBad} onChange={(e) => set("endTime", e.target.value)} /></Field>
+          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">開始時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.startTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("startTime", v)} label="選開始時間" /></div>
+          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">結束時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.endTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("endTime", v)} label="選結束時間" /></div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted">用多久：</span>

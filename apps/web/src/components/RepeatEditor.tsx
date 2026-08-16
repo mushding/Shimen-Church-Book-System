@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Chip, Input, Option, Segmented } from "../ui";
 import { describe, preview, type Repeat } from "../lib/recur";
 import { dateInput, fmtDate } from "../lib/time";
+import { DateField } from "./Pickers";
 
 const DOWS = ["日", "一", "二", "三", "四", "五", "六"];
 type Freq = Repeat["freq"];
@@ -31,8 +32,8 @@ export function RepeatEditor({ value, dtstart, onApply, onBack }: { value: Repea
           <div className="flex flex-col gap-2">
             <span className="text-base font-bold text-primary">什麼時候結束</span>
             <Option on={r.end.kind === "until"} onClick={() => setR({ ...r, end: { kind: "until", date: r.end.kind === "until" ? r.end.date : dateInput(new Date(dtstart.getTime() + 90 * 86400_000)) } })}
-              title="到某一天為止"
-              note={r.end.kind === "until" && <Input type="date" className="mt-2 !max-w-[200px]" value={r.end.date} min={dateInput(dtstart)} onClick={(e) => e.stopPropagation()} onChange={(e) => setR({ ...r, end: { kind: "until", date: e.target.value } })} />} />
+              title="到某一天為止" note={r.end.kind === "until" ? "在下面選最後一天" : undefined} />
+            {r.end.kind === "until" && <div className="ml-9 max-w-[300px]"><DateField value={r.end.date} min={dateInput(dtstart)} label="選最後一天" onChange={(v) => setR({ ...r, end: { kind: "until", date: v } })} /></div>}
             <Option on={r.end.kind === "count"} onClick={() => setR({ ...r, end: { kind: "count", n: r.end.kind === "count" ? r.end.n : 12 } })}
               title={<span className="flex items-center gap-2">重複 {r.end.kind === "count" ? <Input type="number" min={1} max={200} className="!w-24 !min-h-[40px]" value={r.end.n} onClick={(e) => e.stopPropagation()} onChange={(e) => setR({ ...r, end: { kind: "count", n: Math.max(1, Number(e.target.value) || 1) } })} /> : "N"} 次後結束</span>} />
             <Option on={r.end.kind === "never"} onClick={() => setR({ ...r, end: { kind: "never" } })} title="一直重複，不設結束" />

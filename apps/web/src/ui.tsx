@@ -122,7 +122,7 @@ export function Modal({ open, onClose, title, children, wide, icon }: { open: bo
     if (!open && d.open) d.close();
   }, [open]);
   return (
-    <dialog ref={ref} onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}
+    <dialog ref={ref} onClose={(e) => e.target === ref.current && onClose()} /* React bubbles synthetic close from nested dialogs → guard */ onClick={(e) => e.target === ref.current && onClose()}
       className={cx("m-0 max-h-[92dvh] w-full max-w-none overflow-y-auto bg-surface text-fg p-0 backdrop:bg-[rgba(46,74,78,.5)]",
         "fixed bottom-0 top-auto left-0 right-0 rounded-t-[20px] shadow-[0_-12px_32px_rgba(0,0,0,.18)]",
         "md:top-1/2 md:bottom-auto md:left-1/2 md:right-auto md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg md:shadow-xl", wide ? "md:max-w-2xl" : "md:max-w-lg")}>
