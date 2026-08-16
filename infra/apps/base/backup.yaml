@@ -1,0 +1,31 @@
+# Nightly pg_dump → GCS (Standard class; survey 03 §10 rule 8). Auth = VM service account via metadata
+# server (VM created with --scopes=storage-rw), so no key file in-cluster.
+apiVersion: batch/v1
+kind: CronJob
+metadata: { name: pg-backup }
+spec:
+  schedule: "17 19 * * *" # 03:17 Asia/Taipei
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          volumes: [{ name: dump, emptyDir: {} }]
+          initContainers:
+            - name: dump
+              image: postgres:17-alpine
+              env: [{ name: PGPASSWORD, valueFrom: { secretKeyRef: { name: smsk-postgres, key: password } } }]
+              command: [sh, -c, 'pg_dump -h postgres -U smsk smsk | gzip > /dump/smsk-$(date +%F).sql.gz && ls -la /dump']
+              volumeMounts: [{ name: dump, mountPath: /dump }]
+          containers:
+            - name: upload
+              image: google/cloud-sdk:alpine
+              env: [{ name: BUCKET, valueFrom: { configMapKeyRef: { name: smsk-config, key: BACKUP_BUCKET } } }]
+              # keep 30 days server-side via bucket lifecycle rule (see infra/gcp/create.sh)
+              command: [sh, -c, 'gsutil cp /dump/*.sql.gz gs://$BUCKET/$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)/']
+              volumeMounts: [{ name: dump, mountPath: /dump }]
+              resources: { requests: { cpu: 10m, memory: 64Mi } }

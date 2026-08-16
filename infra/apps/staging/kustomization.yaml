@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: smsk-staging
+resources: [namespace.yaml, ../base]
+images:
+  - name: ghcr.io/mushding/shimen-church-book-system
+    newTag: latest
+configMapGenerator:
+  - name: smsk-config
+    literals:
+      - BETTER_AUTH_URL=https://staging.book.smsk.church
+      - BACKUP_BUCKET=smsk-book-backups
+generatorOptions: { disableNameSuffixHash: true }
+patches:
+  - target: { kind: Ingress, name: app }
+    patch: |
+      - op: replace
+        path: /metadata/annotations/traefik.ingress.kubernetes.io~1router.middlewares
+        value: smsk-staging-redirect-https@kubernetescrd
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: staging.book.smsk.church
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging.book.smsk.church
+  - target: { kind: StatefulSet, name: postgres }
+    patch: |
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 2Gi

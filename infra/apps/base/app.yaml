@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata: { name: app }
+spec:
+  selector: { app: app }
+  ports: [{ port: 80, targetPort: 3000 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: app }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: app } }
+  strategy: { type: RollingUpdate, rollingUpdate: { maxUnavailable: 0, maxSurge: 1 } }
+  template:
+    metadata: { labels: { app: app } }
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/mushding/shimen-church-book-system:latest # overlays pin newTag
+          ports: [{ containerPort: 3000 }]
+          env:
+            - { name: BETTER_AUTH_URL, valueFrom: { configMapKeyRef: { name: smsk-config, key: BETTER_AUTH_URL } } }
+            - { name: DATABASE_URL, valueFrom: { secretKeyRef: { name: smsk-app, key: DATABASE_URL } } }
+            - { name: BETTER_AUTH_SECRET, valueFrom: { secretKeyRef: { name: smsk-app, key: BETTER_AUTH_SECRET } } }
+            - { name: LINE_CHANNEL_ID, valueFrom: { secretKeyRef: { name: smsk-app, key: LINE_CHANNEL_ID } } }
+            - { name: LINE_CHANNEL_SECRET, valueFrom: { secretKeyRef: { name: smsk-app, key: LINE_CHANNEL_SECRET } } }
+          resources: { requests: { cpu: 50m, memory: 128Mi }, limits: { memory: 384Mi } }
+          readinessProbe: { httpGet: { path: /healthz, port: 3000 }, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /healthz, port: 3000 }, initialDelaySeconds: 20, periodSeconds: 30 }

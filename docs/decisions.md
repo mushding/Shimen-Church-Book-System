@@ -82,3 +82,11 @@
 - 舊 prod 資料已遺失（無 dump 可用）→ **v2 全新 DB 起步，不做遷移**。`apps/api/src/legacy.ts` + `migrate:legacy` 保留為備用（若日後找到 dump 可跑），不再是切換前置。
 - Phase 5 簡化：staging 驗 → 設定 LINE callback prod URL → DNS 切 `book.smsk.church` → 舊 DO 保留一週後關。無凍結、無彩排。
 - 使用者用同一 LINE channel 登入自然重建帳號；角色（staff/admin）由 admin 在後台重設（第一個 admin 用 `pnpm --filter api set-role <LINE userId> admin`）。
+
+## Phase 4 產出（2026-08-16）— infra
+- **單一 image**（`Dockerfile`）：Hono 同時服務 `/api/*` 與 SPA（`WEB_DIST`），`/healthz`。放棄 nginx 前端容器（少一個 Deployment/Service）。
+- CI：`ci.yml`（typecheck/vitest/build/e2e）；`image.yml`：main → GHCR `sha-xxxxxxx` → 自動改 `infra/apps/staging` newTag；tag `v*` → prod。Flux 拉 git 滾動。放棄 Flux image-automation controllers（多兩個 controller，CI sed 一行等效）。
+- `infra/`：kustomize base + staging/prod overlays；cert-manager HelmRelease + HTTP-01 ClusterIssuer；Postgres StatefulSet（local-path PVC）；pg_dump CronJob → GCS（VM SA scope，不放 key）；Traefik Ingress + https redirect。
+- Secrets 手動 `kubectl create secret`（每 ns 一次），不進 git；要 git 化再上 SOPS+age。
+- GCP：`infra/gcp/create.sh`（gcloud 指令，不上 Terraform——單台 VM 用 script 夠；想練 TF 再換）。
+- 待使用者：跑 create.sh、DNS、flux bootstrap、secrets、GHCR package 設 public、CUD。詳 `infra/README.md`。
