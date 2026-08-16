@@ -4,7 +4,7 @@ namespace: smsk-staging
 resources: [namespace.yaml, ../base]
 images:
   - name: ghcr.io/mushding/shimen-church-book-system
-    newTag: sha-2e6600a
+    newTag: sha-1898211
 configMapGenerator:
   - name: smsk-config
     literals:
