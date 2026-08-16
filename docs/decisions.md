@@ -64,3 +64,10 @@
 
 ## Phase 1 產出（2026-08-16）
 - Design 探索頁（Claude Design）+ `packages/ui` tokens/theme 落地，`apps/web` POC 已改吃 tokens（亮/暗驗證）。詳 `docs/design-system.md`。待使用者審色/字體後修訂。
+
+## Phase 2 產出（2026-08-16）— Backend v2
+- `packages/shared`（zod 4 contract）、`apps/api`：`schema.ts`（room/category/booking_series/booking_exception + better-auth 4 表）、`recur.ts`（台北 +8 固定平移展開）、`conflicts.ts`（409 + force）、`bookings.ts`（this/following/all）、`app.ts`（Hono RPC `AppType`）、`legacy.ts` + `scripts/migrate-legacy.ts`（mysqldump → v2，可重跑）。詳 `docs/api.md`。
+- 決定：**GET /api/bookings 回 server 展開後的 instance**（非 rrule 原文），前端 FullCalendar 不再自己展開；rrule 權威在 server。
+- 決定：**時區用固定 +8 平移**（台灣無 DST），不用 rrule tzid；migration 用同一套展開，BYDAY 語意 = 舊 DevExpress 本地顯示。
+- 決定：DB 二選一 by env：`DATABASE_URL` → node-postgres，否則 pglite（dev/test 用 `memory://`）。
+- 測試：vitest 22 條（recur / conflicts+scopes / routes+roles / legacy parse+migrate）。真 dump 尚未跑（使用者待辦 #5）。

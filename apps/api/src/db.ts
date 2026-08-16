@@ -1,7 +1,10 @@
+import { drizzle as drizzlePglite } from "drizzle-orm/pglite";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
-import * as schema from "./schema.auth";
+import * as schema from "./schema";
 
-// ponytail: pglite (embedded Postgres) for POC — swap to drizzle-orm/node-postgres + real PG in Phase 2
-export const client = new PGlite(process.env.PGLITE_DIR ?? "./.pglite");
-export const db = drizzle(client, { schema });
+// DATABASE_URL set → real Postgres (prod / local brew PG); else pglite embedded (dev, data in ./.pglite)
+export const db = process.env.DATABASE_URL
+  ? drizzlePg(process.env.DATABASE_URL, { schema })
+  : drizzlePglite(new PGlite(process.env.PGLITE_DIR ?? "./.pglite"), { schema });
+export type Db = typeof db;
