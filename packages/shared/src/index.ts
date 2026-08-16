@@ -11,10 +11,11 @@ export const roleSchema = z.enum(ROLES);
 const roomFields = z.object({
   name: z.string().trim().min(1).max(40),
   colorToken: z.string().regex(/^(room-[a-z0-9-]+|#[0-9a-fA-F]{6})$/), // DS token `room-N` or custom hex (admin colour picker)
+  zone: z.string().trim().max(20).nullable(), // 分區（樓層/區域），null = 未分區
   sort: z.number().int(),
   active: z.boolean(),
 });
-export const roomInput = roomFields.extend({ sort: roomFields.shape.sort.default(0), active: roomFields.shape.active.default(true) });
+export const roomInput = roomFields.extend({ zone: roomFields.shape.zone.default(null), sort: roomFields.shape.sort.default(0), active: roomFields.shape.active.default(true) });
 export const roomPatch = roomFields.partial();
 export type RoomInput = z.infer<typeof roomInput>;
 export const room = roomFields.extend({ id: z.number().int() });

@@ -9,6 +9,7 @@ export const room = pgTable("room", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   colorToken: text("color_token").notNull(), // room-N → bg-room-N
+  zone: text("zone"), // 分區（樓層/區域）：表單裡同 zone 的場地放一組，null = 未分區
   sort: integer("sort").notNull().default(0),
   active: boolean("active").notNull().default(true),
 });

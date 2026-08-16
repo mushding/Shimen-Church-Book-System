@@ -15,6 +15,13 @@
       "when": 1786876762739,
       "tag": "0001_drop_allow_overlap",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786888000868,
+      "tag": "0002_room_zone",
+      "breakpoints": true
     }
   ]
 }

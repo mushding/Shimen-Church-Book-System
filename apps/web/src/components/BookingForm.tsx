@@ -20,6 +20,13 @@ export function toInput(v: FormValue, force: boolean): BookingInput | string {
   return { title: v.title.trim(), note: v.note, roomId: v.roomId, categoryId: v.categoryId, start: start.toISOString(), end: end.toISOString(), rrule: toRRule(v.repeat, start), force };
 }
 
+/** Group rooms by zone, keeping first-appearance order (rooms already sorted by admin `sort`); unzoned rooms last. */
+function groupByZone(rooms: Room[]): [string | null, Room[]][] {
+  const m = new Map<string | null, Room[]>();
+  for (const r of rooms) { const z = r.zone?.trim() || null; if (!m.has(z)) m.set(z, []); m.get(z)!.push(r); }
+  return [...m.entries()].sort(([a], [b]) => (a === null ? 1 : 0) - (b === null ? 1 : 0));
+}
+
 const DURATIONS = [{ m: 60, label: "1 小時" }, { m: 90, label: "1.5 小時" }, { m: 120, label: "2 小時" }, { m: 180, label: "3 小時" }];
 
 export function BookingForm({ value, onChange, rooms, categories, conflicts, canForce, force, onForce, allowRepeat = true, submitLabel, onSubmit, onCancel, busy, error }: {
@@ -63,10 +70,17 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
       <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練、姊妹會" /></Field>
       {stage >= 1 && <div ref={stage === 1 ? lastRef : undefined} className="flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">場地<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
-        <div role="radiogroup" aria-label="場地" className="flex flex-wrap gap-2">
-          {rooms.filter((r) => r.active || r.id === value.roomId).map((r) => (
-            <Chip key={r.id} check on={value.roomId === r.id} color={cssColor(r.colorToken)} onClick={() => set("roomId", r.id)}
-              className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}</Chip>
+        <div role="radiogroup" aria-label="場地" className="flex flex-col divide-y divide-border/70">
+          {groupByZone(rooms.filter((r) => r.active || r.id === value.roomId)).map(([zone, list]) => (
+            <div key={zone ?? "_"} className="flex items-start gap-2 py-2.5 first:pt-0 last:pb-0">
+              {zone && <span className="w-[4.5em] shrink-0 pt-2.5 text-sm font-bold text-muted">{zone}</span>}
+              <div className="flex flex-wrap gap-2">
+                {list.map((r) => (
+                  <Chip key={r.id} check on={value.roomId === r.id} color={cssColor(r.colorToken)} onClick={() => set("roomId", r.id)}
+                    className={cx(conflictRoom === r.id && value.roomId === r.id && "outline outline-2 outline-offset-2 outline-danger")}>{r.name}</Chip>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>}
@@ -90,8 +104,9 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           <span className="text-sm text-muted">用多久：</span>
           {DURATIONS.map((d) => <Chip key={d.m} size="sm" on={durationMin === d.m} onClick={() => setDuration(d.m)} className={cx(!fits(d.m) && "opacity-40")}>{d.label}</Chip>)}
         </div>
-        <div className={cx("rounded-md px-3.5 py-2 text-base", timeBad ? "bg-danger/10 text-danger" : "bg-today text-fg")}>
-          {timeBad ? "結束時間要比開始時間晚（登記不能跨過午夜，請分成兩筆）" : <><b>{fmtDate(dtstart)}</b> {fmtTime(dtstart)}–{fmtTime(dtend)}<span className="text-muted">（{durationText}）</span></>}
+        <div aria-live="polite" className={cx("flex items-center gap-3 rounded-md border-2 px-4 py-4 text-lg leading-snug", timeBad ? "border-danger/40 bg-danger/10 text-danger" : "border-primary/30 bg-today text-fg")}>
+          <Icon name="clock" size={24} className={cx("shrink-0", timeBad ? "text-danger" : "text-primary")} />
+          {timeBad ? <span className="text-base">結束時間要比開始時間晚（登記不能跨過午夜，請分成兩筆）</span> : <span className="flex flex-col"><span><b>{fmtDate(dtstart)}</b>　<b className="tabular-nums">{fmtTime(dtstart)}–{fmtTime(dtend)}</b></span><span className="text-base text-muted">共 {durationText}</span></span>}
         </div>
       </div>
       {allowRepeat && (

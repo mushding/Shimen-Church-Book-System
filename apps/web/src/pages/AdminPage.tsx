@@ -128,8 +128,8 @@ function Rooms() {
   const del = useMutation({ mutationFn: (id: number) => j(api.api.admin.rooms[":id"].$delete({ param: { id: String(id) } })), onSuccess: () => { inv(); toast("ok", "已刪除"); } });
   return (
     <Section title="場地" desc="會友登記時可以選的房間。拖曳左邊把手可以調整順序。">
-      <EntityTable items={rooms} addLabel="場地" hint="停用的場地不會出現在篩選與登記表單，但舊登記還是看得到。點顏色方塊可以改顏色。"
-        cols={[]}
+      <EntityTable items={rooms} addLabel="場地" hint="停用的場地不會出現在篩選與登記表單，但舊登記還是看得到。點顏色方塊可以改顏色。「分區」相同的場地在登記表單會放在同一組（例：1樓、地下1樓、活動中心）。"
+        cols={[{ head: "分區", cell: (r) => <Input className="!min-h-[44px] !py-1 !max-w-[8em]" placeholder="未分區" defaultValue={r.zone ?? ""} onBlur={(e) => { const z = e.target.value.trim() || null; if (z !== (r.zone ?? null)) upd.mutate({ id: r.id, zone: z }); }} /> }]}
         onPatch={(id, p) => upd.mutateAsync({ id, ...p })} onDelete={(r) => del.mutateAsync(r.id)} onAdd={(n) => add.mutateAsync(n)} />
     </Section>
   );
