@@ -1,11 +1,23 @@
-# Flux: cluster-wide controllers (cert-manager + issuer). Reconciled from this repo.
+# Flux: cluster-wide controllers. cert-manager (HelmRelease, installs CRDs) → issuers (needs CRDs) → apps.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata: { name: cert-manager, namespace: flux-system }
+spec:
+  interval: 10m
+  path: ./infra/controllers/cert-manager
+  prune: true
+  wait: true
+  timeout: 5m
+  sourceRef: { kind: GitRepository, name: flux-system }
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata: { name: controllers, namespace: flux-system }
 spec:
   interval: 10m
-  path: ./infra/controllers
+  path: ./infra/controllers/issuers
   prune: true
   wait: true
   timeout: 5m
+  dependsOn: [{ name: cert-manager }]
   sourceRef: { kind: GitRepository, name: flux-system }

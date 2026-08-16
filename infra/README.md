@@ -7,7 +7,7 @@ namespace：`smsk`（prod, `book.smsk.church`）、`smsk-staging`（`staging.boo
 ```
 infra/
   clusters/smsk/      Flux Kustomizations（controllers → apps-staging / apps-prod）
-  controllers/        cert-manager HelmRelease + ClusterIssuer(letsencrypt, HTTP-01 via Traefik)
+  controllers/        cert-manager/（HelmRelease）→ issuers/（ClusterIssuer letsencrypt, HTTP-01 via Traefik）
   apps/base/          postgres StatefulSet、app Deployment/Service、Ingress+redirect、pg-backup CronJob→GCS
   apps/staging|prod/  namespace、host、image newTag（CI 自動改）、PVC 大小
   gcp/                create.sh（IP/防火牆/bucket/VM）、startup.sh（k3s）
