@@ -56,12 +56,18 @@ export function DateField({ value, onChange, min, label = "選日期" }: { value
 }
 
 /** value: "HH:mm" (24h) */
-export function TimeField({ value, onChange, label = "選時間", err }: { value: string; onChange: (v: string) => void; label?: string; err?: boolean }) {
+/** min: "HH:mm" — 結束時間用；早於或等於 min 的時/分會灰掉不能選 */
+export function TimeField({ value, onChange, label = "選時間", err, min }: { value: string; onChange: (v: string) => void; label?: string; err?: boolean; min?: string }) {
   const [open, setOpen] = useState(false);
   const [h, m] = value.split(":").map(Number);
+  const [minH, minM] = min ? min.split(":").map(Number) : [-1, -1];
+  const hourOk = (x: number) => x > minH || (x === minH && MINUTES.some((y) => y > minM));
+  const minuteOk = (hx: number, y: number) => hx > minH || (hx === minH && y > minM);
   const [hh, setHh] = useState(h);
   const [mm, setMm] = useState(m);
   const openAt = () => { setHh(h); setMm(m); setOpen(true); };
+  const pickH = (x: number) => { setHh(x); if (!minuteOk(x, mm)) setMm(MINUTES.find((y) => minuteOk(x, y)) ?? 0); };
+  const valid = hourOk(hh) && minuteOk(hh, mm);
   const ok = () => { onChange(`${pad(hh)}:${pad(hh === 23 ? 0 : mm)}`); setOpen(false); }; // 日曆只到 23:00
   const ampm = (x: number) => (x < 12 ? "上午" : x < 18 ? "下午" : "晚上");
   return (
@@ -71,21 +77,22 @@ export function TimeField({ value, onChange, label = "選時間", err }: { value
         <Icon name="clock" size={22} className="text-primary" />
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={label} icon="clock">
-        <div className="mb-3 rounded-md bg-today px-4 py-3 text-center font-display text-3xl font-bold tabular-nums text-primary">{pad(hh)}:{pad(mm)}<span className="ml-2 text-lg font-normal text-muted">{ampm(hh)}</span></div>
+        <div className="mb-3 rounded-md bg-today px-4 py-3 text-center font-display text-3xl font-bold tabular-nums text-primary">{pad(hh)}:{pad(hh === 23 ? 0 : mm)}<span className="ml-2 text-lg font-normal text-muted">{ampm(hh)}</span></div>
+        {min && <div className="mb-2 text-sm text-muted">要比開始時間（{min}）晚</div>}
         <div className="text-sm font-bold text-muted">幾點</div>
         <div className="mt-1.5 grid grid-cols-6 gap-1.5">
           {HOURS.map((x) => (
-            <button key={x} type="button" onClick={() => setHh(x)} aria-pressed={x === hh}
-              className={cx("flex h-12 items-center justify-center rounded-md border-2 text-lg font-bold tabular-nums focus-visible:outline-2 focus-visible:outline-primary", x === hh ? "border-primary bg-primary text-primary-fg" : "border-border bg-surface hover:bg-primary/10")}>{x}</button>
+            <button key={x} type="button" onClick={() => pickH(x)} aria-pressed={x === hh} disabled={!hourOk(x)}
+              className={cx("flex h-12 items-center justify-center rounded-md border-2 text-lg font-bold tabular-nums focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-30 disabled:cursor-not-allowed", x === hh ? "border-primary bg-primary text-primary-fg" : "border-border bg-surface hover:bg-primary/10")}>{x}</button>
           ))}
         </div>
         <div className="mt-4 text-sm font-bold text-muted">幾分</div>
         <div className="mt-1.5 grid grid-cols-4 gap-2">
-          {MINUTES.map((x) => <Chip key={x} on={x === (hh === 23 ? 0 : mm)} onClick={() => hh !== 23 && setMm(x)} className={cx("justify-center tabular-nums", hh === 23 && x > 0 && "opacity-40")}>{pad(x)} 分</Chip>)}
+          {MINUTES.map((x) => { const off = (hh === 23 && x > 0) || !minuteOk(hh, x); return <Chip key={x} on={x === (hh === 23 ? 0 : mm)} onClick={() => !off && setMm(x)} className={cx("justify-center tabular-nums", off && "opacity-30 cursor-not-allowed")}>{pad(x)} 分</Chip>; })}
         </div>
         <div className="mt-5 flex gap-3">
           <Button variant="ghost" className="flex-1" onClick={() => setOpen(false)}>取消</Button>
-          <Button className="flex-[2]" icon="check" onClick={ok}>確定</Button>
+          <Button className="flex-[2]" icon="check" onClick={ok} disabled={!valid}>確定</Button>
         </div>
       </Modal>
     </>

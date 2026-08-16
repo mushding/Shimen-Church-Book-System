@@ -98,8 +98,12 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
       <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">日期<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><DateField value={value.date} onChange={(v) => set("date", v)} label="選日期" /></div>
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">開始時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.startTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("startTime", v)} label="選開始時間" /></div>
-          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">結束時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.endTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("endTime", v)} label="選結束時間" /></div>
+          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">開始時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.startTime} err={!!conflicts?.length || timeBad} label="選開始時間" onChange={(v) => {
+            // 開始改晚於結束 → 結束自動跟著往後推 1 小時（不跨午夜）
+            const ns = fromInputs(value.date, v), ne = addMinutes(ns, 60);
+            onChange({ ...value, startTime: v, endTime: fromInputs(value.date, value.endTime) > ns ? value.endTime : ne.getDate() === ns.getDate() ? timeInput(ne) : "23:59" });
+          }} /></div>
+          <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">結束時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.endTime} min={value.startTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("endTime", v)} label="選結束時間" /></div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted">用多久：</span>
