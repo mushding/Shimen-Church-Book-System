@@ -21,7 +21,7 @@ infra/
 
 > GHCR package 第一次建出來預設 private → GitHub Packages 設定改 **public**（k3s 才拉得到，不用 imagePullSecret）。或建 `ghcr` pull secret 並在 Deployment 加 `imagePullSecrets`。
 
-> **狀態（2026-08-16）**：§2–§4 已做完。project `smsk-app`、VM `smsk-k3s` = `104.199.232.239`、Flux 已 bootstrap、secrets 已建。剩 DNS + LINE callback + 第一個 prod tag。
+> **狀態（2026-08-16）**：§2–§4 已做完。project `smsk-app`、VM `smsk-k3s` = `104.199.232.239`、Flux 已 bootstrap、secrets 已建。DNS 已切、LINE callback 已加、prod `v1.0.0` 上線。**Cloudflare**：`book` 橘雲需 SSL 模式 Full (strict)（Flexible 會跟 Traefik 301 互踢）；`staging.book` 必須灰雲（Universal SSL 不蓋 `*.book.smsk.church`）。
 
 ## 2. GCP（一次）
 ```sh
