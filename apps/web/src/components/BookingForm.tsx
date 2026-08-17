@@ -31,7 +31,9 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
 }) {
   const [repeatOpen, setRepeatOpen] = useState(false);
   // progressive disclosure（長者一次只看一件事）：名稱 → 場地 → 類別 → 其餘。已揭露的段落不再收回。
-  const stageNow = !value.title.trim() ? 0 : !value.roomId ? 1 : !value.categoryId ? 2 : 3;
+  // 名稱要「打完」（blur / Enter）才揭露場地，不然每敲一個字畫面就往下跳；編輯既有登記則一開始就算打完。
+  const [titleDone, setTitleDone] = useState(!!value.title.trim());
+  const stageNow = !(titleDone && value.title.trim()) ? 0 : !value.roomId ? 1 : !value.categoryId ? 2 : 3;
   const [stage, setStage] = useState(stageNow);
   useEffect(() => { if (stageNow > stage) setStage(stageNow); }, [stageNow, stage]);
   const lastRef = useRef<HTMLDivElement>(null);
@@ -62,7 +64,8 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           </div>
         </div>
       )}
-      <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus onChange={(e) => set("title", e.target.value)} placeholder="例：青少契劇會排練、姊妹會" /></Field>
+      <Field label="活動名稱" required><Input value={value.title} maxLength={60} autoFocus enterKeyHint="next" onChange={(e) => set("title", e.target.value)} onBlur={() => value.title.trim() && setTitleDone(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) { e.preventDefault(); setTitleDone(true); e.currentTarget.blur(); } }} placeholder="例：青少契劇會排練、姊妹會" /></Field>
       {stage >= 1 && <div ref={stage === 1 ? lastRef : undefined} className="anim-in flex flex-col gap-1.5">
         <span className="text-base font-bold text-primary">場地<span className="ml-1 text-danger" aria-hidden="true">＊</span></span>
         <div role="radiogroup" aria-label="場地" className="flex flex-col divide-y divide-border/70">

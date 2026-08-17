@@ -122,7 +122,7 @@ function Rooms() {
   const inv = () => qc.invalidateQueries({ queryKey: ["rooms"] });
   const upd = useMutation({ mutationFn: ({ id, ...json }: Partial<Room> & { id: number }) => j(api.api.admin.rooms[":id"].$patch({ param: { id: String(id) }, json })), onSuccess: inv, onError: () => toast("err", "更新失敗") });
   const add = useMutation({
-    mutationFn: (name: string) => j(api.api.admin.rooms.$post({ json: { name, colorToken: `room-${(rooms.length % 10) + 1}`, sort: rooms.length, active: true } })),
+    mutationFn: (name: string) => j(api.api.admin.rooms.$post({ json: { name, colorToken: "room-10", sort: rooms.length, active: true } })),
     onSuccess: () => { inv(); toast("ok", "已新增場地"); }, onError: () => toast("err", "新增失敗（名稱重複？）"),
   });
   const del = useMutation({ mutationFn: (id: number) => j(api.api.admin.rooms[":id"].$delete({ param: { id: String(id) } })), onSuccess: () => { inv(); toast("ok", "已刪除"); } });

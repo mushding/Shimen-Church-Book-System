@@ -107,7 +107,9 @@ export function Option({ on, onClick, title, note, radio = true }: { on: boolean
   return (
     <button type="button" role={radio ? "radio" : "checkbox"} aria-checked={on} onClick={onClick}
       className={cx("flex w-full items-start gap-3 rounded-md border-2 bg-surface px-4 py-3.5 text-left min-h-[56px] [transition-property:background-color,border-color,transform] active:scale-[.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary", on ? "border-primary bg-today" : "border-border")}>
-      <span className={cx("mt-0.5 h-[22px] w-[22px] flex-none border-2 border-primary bg-surface", radio ? "rounded-full" : "rounded-[6px]", on && (radio ? "border-[7px]" : "bg-primary"))} />
+      <span className={cx("mt-0.5 flex h-[22px] w-[22px] flex-none items-center justify-center border-2 border-primary bg-surface text-white", radio ? "rounded-full" : "rounded-[6px]", on && (radio ? "border-[7px]" : "bg-primary"))}>
+        {!radio && on && <Icon name="check" size={16} />}
+      </span>
       <span className="text-base leading-snug"><b>{title}</b>{note && <div className="mt-0.5 text-sm text-muted">{note}</div>}</span>
     </button>
   );
