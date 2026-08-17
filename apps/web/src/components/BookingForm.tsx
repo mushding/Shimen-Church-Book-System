@@ -130,6 +130,9 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
         <Button variant="ghost" className="flex-1" onClick={onCancel}>取消</Button>
         {stage >= 3 ? (
           <Button type="submit" className="flex-[2]" icon="check" disabled={busy || (!!conflicts?.length && !force)}>{busy ? "儲存中…" : submitLabel}</Button>
+        ) : stage === 0 && value.title.trim() ? (
+          // 名稱填了但還沒揭露場地：給明確的下一步（長者不知道要按 Enter／點別處）
+          <Button type="button" className="flex-[2] anim-in" onClick={() => setTitleDone(true)}>下一步：選場地<Icon name="chevron-right" size={20} /></Button>
         ) : (
           <div className="flex flex-[2] items-center justify-center text-sm text-muted">{stage === 0 ? "先填活動名稱" : stage === 1 ? "再選一個場地" : "再選一個類別"}</div>
         )}
