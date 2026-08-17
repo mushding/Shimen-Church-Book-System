@@ -124,7 +124,7 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
             <Icon name="chevron-right" size={20} className="transition-transform group-open:rotate-90" />
           </span>
         </summary>
-        <div className="flex flex-col gap-4 border-t-2 border-border px-4 pb-4 pt-3">
+        <div className="anim-in flex flex-col gap-4 border-t-2 border-border px-4 pb-4 pt-3">
           {allowRepeat && (
             <button type="button" onClick={() => setRepeatOpen(true)} className="flex min-h-[52px] items-center justify-between gap-3 rounded-md border-2 border-border bg-surface px-4 py-2.5 text-left hover:bg-primary/5">
               <span className="flex items-center gap-2 text-base font-bold text-primary"><Icon name="repeat" size={20} />重複</span>
