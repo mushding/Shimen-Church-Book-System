@@ -27,25 +27,33 @@
   --danger: var(--smsk-red);
   --today: oklch(0.955 0.03 180);
 
-  /* ---- 場地色票（同 L/C 家族，只變 hue）---- */
-  --room-1: oklch(0.50 0.09 225);
-  --room-2: oklch(0.58 0.09 205);
-  --room-3: oklch(0.55 0.09 265);
-  --room-4: oklch(0.65 0.08 185);
-  --room-5: oklch(0.55 0.13 25);
-  --room-6: oklch(0.70 0.12 80);
-  --room-7: oklch(0.52 0.11 150);
-  --room-8: oklch(0.65 0.11 125);
-  --room-9: oklch(0.62 0.12 350);
-  --room-10: oklch(0.50 0.01 205);
+  /* ---- 場地色票：同區域同色系；色值全部取自 nipponcolors.com（日本傳統色）---- */
+  /* 地下室：藍 */
+  --room-1: #005CAF;  /* 瑠璃 RURI */
+  --room-2: #1E88A8;  /* 花浅葱 HANAASAGI */
+  /* 1 樓：紅／橘 */
+  --room-3: #8E354A;  /* 蘇芳 SUOH */
+  --room-4: #CB1B45;  /* 紅 KURENAI */
+  --room-5: #F05E1C;  /* 黄丹 OHNI */
+  /* 2 樓：黃 */
+  --room-6: #C7802D;  /* 金茶 KINCHA */
+  /* 活動中心：綠 */
+  --room-7: #1B813E;  /* 常磐 TOKIWA */
+  --room-8: #24936E;  /* 緑青 ROKUSYOH */
+  --room-9: #838A2D;  /* 苔 KOKE */
+  /* 其他／未分區 fallback：灰 */
+  --room-10: #656765; /* 鈍 NIBI */
+  /* 3 樓：紫；頂樓：紫紅 */
+  --room-11: #6A4C9C; /* 桔梗 KIKYO */
+  --room-12: #A8497A; /* 梅紫 UMEMURASAKI */
 
-  /* ---- 類別細條 ---- */
-  --cat-church: oklch(0.62 0.13 60);
-  --cat-group: oklch(0.52 0.15 25);
-  --cat-youth: oklch(0.45 0.10 245);
-  --cat-young: oklch(0.48 0.12 300);
-  --cat-kids: oklch(0.48 0.10 150);
-  --cat-personal: oklch(0.55 0.02 205);
+  /* ---- 類別細條（nipponcolors）---- */
+  --cat-church: #CA7A2C;   /* 琥珀 KOHAKU */
+  --cat-group: #9F353A;    /* 燕脂 ENJI */
+  --cat-youth: #113285;    /* 紺青 KONJYO */
+  --cat-young: #77428D;    /* 江戸紫 EDOMURASAKI */
+  --cat-kids: #2D6D4B;     /* 木賊 TOKUSA */
+  --cat-personal: #787D7B; /* 素鼠 SUNEZUMI */
 
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-pill: 999px;
 }
