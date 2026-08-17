@@ -104,9 +104,11 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           }} /></div>
           <div className="flex flex-col gap-1.5"><span className="text-base font-bold text-primary">結束時間<span className="ml-1 text-danger" aria-hidden="true">＊</span></span><TimeField value={value.endTime} min={value.startTime} err={!!conflicts?.length || timeBad} onChange={(v) => set("endTime", v)} label="選結束時間" /></div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted">用多久：</span>
-          {DURATIONS.map((d) => <Chip key={d.m} size="sm" on={durationMin === d.m} onClick={() => setDuration(d.m)} className={cx(!fits(d.m) && "opacity-40")}>{d.label}</Chip>)}
+        <div className="my-1 flex flex-col gap-2">
+          <span className="text-base font-bold text-primary">用多久</span>
+          <div className="flex flex-wrap gap-2.5">
+            {DURATIONS.map((d) => <Chip key={d.m} on={durationMin === d.m} onClick={() => setDuration(d.m)} className={cx(!fits(d.m) && "opacity-40")}>{d.label}</Chip>)}
+          </div>
         </div>
         <div aria-live="polite" className={cx("flex items-center gap-3 rounded-md border-2 px-4 py-4 text-lg leading-snug", timeBad ? "border-danger/40 bg-danger/10 text-danger" : "border-primary/30 bg-today text-fg")}>
           <Icon name="clock" size={24} className={cx("shrink-0", timeBad ? "text-danger" : "text-primary")} />
