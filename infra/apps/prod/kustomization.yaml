@@ -4,7 +4,7 @@ namespace: smsk
 resources: [namespace.yaml, ../base]
 images:
   - name: ghcr.io/mushding/shimen-church-book-system
-    newTag: v1.9.1
+    newTag: v1.9.2
 configMapGenerator:
   - name: smsk-config
     literals:
