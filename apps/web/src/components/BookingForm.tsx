@@ -33,6 +33,8 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
   // progressive disclosure（長者一次只看一件事）：名稱 → 場地 → 類別 → 其餘。已揭露的段落不再收回。
   // 名稱要「打完」（blur / Enter）才揭露場地，不然每敲一個字畫面就往下跳；編輯既有登記則一開始就算打完。
   const [titleDone, setTitleDone] = useState(!!value.title.trim());
+  // 進階區只在初始決定要不要展開（之後由 <details> 自己管，避免清空備註時突然收起）
+  const [advOpen] = useState(() => value.repeat.freq !== "none" || !!value.note);
   const stageNow = !(titleDone && value.title.trim()) ? 0 : !value.roomId ? 1 : !value.categoryId ? 2 : 3;
   const [stage, setStage] = useState(stageNow);
   useEffect(() => { if (stageNow > stage) setStage(stageNow); }, [stageNow, stage]);
@@ -111,13 +113,25 @@ export function BookingForm({ value, onChange, rooms, categories, conflicts, can
           {timeBad ? <span className="text-base">結束時間要比開始時間晚（登記不能跨過午夜，請分成兩筆）</span> : <span className="flex flex-col"><span><b>{fmtDate(dtstart)}</b>　<b className="tabular-nums">{fmtTime(dtstart)}–{fmtTime(dtend)}</b></span><span className="text-base text-muted">共 {durationText}</span></span>}
         </div>
       </div>
-      {allowRepeat && (
-        <button type="button" onClick={() => setRepeatOpen(true)} className="flex min-h-[52px] items-center justify-between gap-3 rounded-md border-2 border-border bg-surface px-4 py-2.5 text-left hover:bg-primary/5">
-          <span className="flex items-center gap-2 text-base font-bold text-primary"><Icon name="repeat" size={20} />重複</span>
-          <span className="flex items-center gap-1 text-base">{describe(value.repeat, dtstart)}<Icon name="chevron-right" size={20} className="text-muted" /></span>
-        </button>
-      )}
-      <Field label="備註（可不填）"><Input value={value.note} maxLength={2000} onChange={(e) => set("note", e.target.value)} placeholder="例：需要投影機、需開冷氣" /></Field>
+      {/* 進階（重複／備註）預設收起：新增登記元素越少越好；有設定值時（編輯）自動展開並在標題摘要 */}
+      <details open={advOpen || undefined} className="group rounded-md border-2 border-border bg-surface">
+        <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-2.5 text-base font-bold text-primary [&::-webkit-details-marker]:hidden">
+          <span className="flex items-center gap-2"><Icon name="settings" size={20} />進階{allowRepeat ? "（重複、備註）" : "（備註）"}</span>
+          <span className="flex items-center gap-1 text-sm font-normal text-muted">
+            <span className="group-open:hidden">{[allowRepeat && value.repeat.freq !== "none" && describe(value.repeat, dtstart), value.note && "有備註"].filter(Boolean).join("、")}</span>
+            <Icon name="chevron-right" size={20} className="transition-transform group-open:rotate-90" />
+          </span>
+        </summary>
+        <div className="flex flex-col gap-4 border-t-2 border-border px-4 pb-4 pt-3">
+          {allowRepeat && (
+            <button type="button" onClick={() => setRepeatOpen(true)} className="flex min-h-[52px] items-center justify-between gap-3 rounded-md border-2 border-border bg-surface px-4 py-2.5 text-left hover:bg-primary/5">
+              <span className="flex items-center gap-2 text-base font-bold text-primary"><Icon name="repeat" size={20} />重複</span>
+              <span className="flex items-center gap-1 text-base">{describe(value.repeat, dtstart)}<Icon name="chevron-right" size={20} className="text-muted" /></span>
+            </button>
+          )}
+          <Field label="備註（可不填）"><Input value={value.note} maxLength={2000} onChange={(e) => set("note", e.target.value)} placeholder="例：需要投影機、需開冷氣" /></Field>
+        </div>
+      </details>
       {conflicts && conflicts.length > 0 && canForce && (
         <label className="flex items-start gap-3 rounded-md border-2 border-border bg-surface px-4 py-3">
           <input type="checkbox" className="mt-1 h-6 w-6 accent-primary" checked={force} onChange={(e) => onForce(e.target.checked)} />
